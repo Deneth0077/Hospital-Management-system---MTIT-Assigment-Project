@@ -387,42 +387,47 @@ const WardModule = () => {
             {/* Modal: Add Ward */}
             {showAddWardModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in transition-all">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
                         <div className="p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl">
-                                    <Home size={20} />
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/20 rounded-2xl shadow-inner backdrop-blur-md">
+                                    <Home size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">Add New Ward</h3>
-                                    <p className="text-xs text-blue-100 opacity-80 uppercase tracking-widest font-bold">New Facility Creation</p>
+                                    <h3 className="font-bold text-xl tracking-tight">Add New Ward</h3>
+                                    <p className="text-[10px] text-blue-100 opacity-90 uppercase tracking-[0.2em] font-black">Facility Expansion</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowAddWardModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                                <X size={20} />
+                                <X size={24} />
                             </button>
                         </div>
-                        <form onSubmit={handleCreateWard} className="p-8 space-y-6">
-                            <div className="space-y-4">
+                        <form onSubmit={handleCreateWard} className="p-8 space-y-8">
+                            <div className="space-y-6">
                                 <div>
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Ward Name</label>
-                                    <div className="relative">
-                                        <Home className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                        <Home size={12} /> Basic Information
+                                    </label>
+                                    <div className="relative group">
+                                        <Home className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
                                         <input 
                                             required
                                             type="text" 
                                             placeholder="e.g. ICU, General Ward B"
-                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 pl-12 pr-5 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all shadow-sm"
                                             value={newWard.name}
                                             onChange={(e) => setNewWard({...newWard, name: e.target.value})}
                                         />
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Type</label>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                            <Activity size={12} /> Ward Type
+                                        </label>
                                         <select 
-                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none appearance-none"
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-bold text-gray-700 shadow-sm"
                                             value={newWard.type}
                                             onChange={(e) => setNewWard({...newWard, type: e.target.value})}
                                         >
@@ -434,12 +439,15 @@ const WardModule = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Capacity</label>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                            <TrendingUp size={12} /> Total Capacity
+                                        </label>
                                         <input 
                                             required
                                             type="number" 
                                             min="1"
-                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                            placeholder="Number of beds"
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all shadow-sm"
                                             value={newWard.capacity || ''}
                                             onChange={(e) => {
                                                 const val = parseInt(e.target.value);
@@ -449,8 +457,8 @@ const WardModule = () => {
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2">
-                                <Plus size={18} /> Create Ward
+                            <button type="submit" className="w-full py-4.5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-3 active:scale-95 group">
+                                <Plus size={18} /> Initialize Ward
                             </button>
                         </form>
                     </div>
@@ -460,120 +468,150 @@ const WardModule = () => {
             {/* Modal: Admit Patient */}
             {showAdmitModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in transition-all">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-                        <div className="p-6 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl">
-                                    <UserPlus size={20} />
+                    <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="p-6 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex justify-between items-center shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/20 rounded-2xl shadow-inner backdrop-blur-md">
+                                    <UserPlus size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">Patient Admission</h3>
-                                    <p className="text-xs text-emerald-100 opacity-80 uppercase tracking-widest font-bold">Smart Allocation System</p>
+                                    <h3 className="font-bold text-xl tracking-tight">Patient Admission</h3>
+                                    <p className="text-[10px] text-emerald-100 opacity-90 uppercase tracking-[0.2em] font-black">Smart Resource Allocation</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowAdmitModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                                <X size={20} />
+                                <X size={24} />
                             </button>
                         </div>
-                        <form onSubmit={handleAdmitPatient} className="p-8 space-y-6">
-                            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 flex gap-3 text-emerald-800">
-                                <Info size={18} className="shrink-0" />
-                                <p className="text-[10px] font-medium leading-relaxed uppercase tracking-wider">The system will automatically assign the best available ward and bed based on the patient's severity and disease.</p>
-                            </div>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Full Name</label>
-                                    <input 
-                                        required
-                                        type="text" 
-                                        placeholder="John Doe"
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                                        value={admissionData.name}
-                                        onChange={(e) => setAdmissionData({...admissionData, name: e.target.value})}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Diagnosis / Disease</label>
-                                    <div className="relative">
-                                        <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                                        <input 
-                                            required
-                                            type="text" 
-                                            placeholder="e.g. COVID-19, Dengue"
-                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
-                                            value={admissionData.disease}
-                                            onChange={(e) => setAdmissionData({...admissionData, disease: e.target.value})}
-                                        />
+                        
+                        <div className="overflow-y-auto custom-scrollbar flex-1 bg-white">
+                            <form onSubmit={handleAdmitPatient} className="p-8 space-y-8">
+                                <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 flex gap-4 text-emerald-800 items-start">
+                                    <div className="p-2 bg-emerald-100 rounded-lg shrink-0">
+                                        <Info size={18} className="text-emerald-600" />
                                     </div>
+                                    <p className="text-[11px] font-bold leading-relaxed uppercase tracking-wider opacity-80">
+                                        The system will intelligently suggest the most suitable ward and bed based on clinical severity and diagnosis for optimal patient care.
+                                    </p>
                                 </div>
-                                <div>
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Severity Level</label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {['mild', 'moderate', 'critical'].map((level) => (
-                                            <button
-                                                key={level}
-                                                type="button"
-                                                onClick={() => setAdmissionData({...admissionData, severity: level})}
-                                                className={`py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all ${
-                                                    admissionData.severity === level 
-                                                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-md' 
-                                                        : 'bg-white border-gray-100 text-gray-400 hover:border-emerald-200'
-                                                }`}
-                                            >
-                                                {level}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                {selectedWard && beds.filter(b => b.status === 'available').length > 0 && (
-                                    <div className="pt-2 border-t border-gray-100">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Select Available Bed (Optional)</label>
-                                        <div className="grid grid-cols-5 gap-2">
-                                            {beds.filter(b => b.status === 'available').slice(0, 5).map((bed) => (
-                                                <button
-                                                    key={bed.id}
-                                                    type="button"
-                                                    onClick={() => setAdmissionData({...admissionData, bedId: bed.id, wardId: selectedWard.id})}
-                                                    className={`py-2 rounded-lg text-xs font-bold transition-all border ${
-                                                        admissionData.bedId === bed.id
-                                                            ? 'bg-blue-600 border-blue-600 text-white shadow-md'
-                                                            : 'bg-white border-gray-100 text-gray-500 hover:border-blue-200'
-                                                    }`}
-                                                >
-                                                    B-{bed.bedNumber}
-                                                </button>
-                                            ))}
+
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                    <div className="space-y-8">
+                                        <div className="space-y-6">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                                <Users size={12} /> Patient Information
+                                            </label>
+                                            <div className="space-y-4">
+                                                <div className="group">
+                                                    <input 
+                                                        required
+                                                        type="text" 
+                                                        placeholder="Full Patient Name"
+                                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 px-5 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition-all shadow-sm"
+                                                        value={admissionData.name}
+                                                        onChange={(e) => setAdmissionData({...admissionData, name: e.target.value})}
+                                                    />
+                                                </div>
+                                                <div className="relative group">
+                                                    <Stethoscope className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors" size={18} />
+                                                    <input 
+                                                        required
+                                                        type="text" 
+                                                        placeholder="Diagnosis (e.g. Dengue)"
+                                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 pl-12 pr-5 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition-all shadow-sm"
+                                                        value={admissionData.disease}
+                                                        onChange={(e) => setAdmissionData({...admissionData, disease: e.target.value})}
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
-                                        <p className="text-[9px] font-bold text-gray-400 mt-2 px-1">Showing 5 available beds from {selectedWard.name}.</p>
+
+                                        <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                                <Activity size={12} /> Clinical Severity
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['mild', 'moderate', 'critical'].map((level) => (
+                                                    <button
+                                                        key={level}
+                                                        type="button"
+                                                        onClick={() => setAdmissionData({...admissionData, severity: level})}
+                                                        className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                                                            admissionData.severity === level 
+                                                                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100 scale-105' 
+                                                                : 'bg-white border-gray-100 text-gray-400 hover:border-emerald-200'
+                                                        }`}
+                                                    >
+                                                        {level}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
-                                {selectedWard && wardStaff.filter(s => s.role.toLowerCase() === 'doctor').length > 0 && (
-                                    <div className="pt-2">
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Assign Doctor (Optional)</label>
-                                        <select 
-                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none appearance-none"
-                                            value={admissionData.doctorId}
-                                            onChange={(e) => setAdmissionData({...admissionData, doctorId: e.target.value})}
-                                        >
-                                            <option value="">Auto-assign Doctor</option>
-                                            {wardStaff.filter(s => s.role.toLowerCase() === 'doctor').map(doc => (
-                                                <option key={doc.id} value={doc.id}>{doc.name}</option>
-                                            ))}
-                                        </select>
+
+                                    <div className="space-y-8">
+                                        {selectedWard && (
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                                    <Bed size={12} /> Bed Assignment
+                                                </label>
+                                                <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                                                    <div className="grid grid-cols-5 gap-3 mb-4">
+                                                        {beds.filter(b => b.status === 'available').slice(0, 5).map((bed) => (
+                                                            <button
+                                                                key={bed.id}
+                                                                type="button"
+                                                                onClick={() => setAdmissionData({...admissionData, bedId: bed.id, wardId: selectedWard.id})}
+                                                                className={`h-14 rounded-xl text-[10px] font-black transition-all border flex flex-col items-center justify-center gap-1.5 ${
+                                                                    admissionData.bedId === bed.id
+                                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 scale-110'
+                                                                        : 'bg-white border-gray-100 text-gray-500 hover:border-blue-300'
+                                                                }`}
+                                                            >
+                                                                <Bed size={16} className={admissionData.bedId === bed.id ? 'text-white/90' : 'text-blue-500/70'} />
+                                                                <span>{bed.bedNumber}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <p className="text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest italic">Available in {selectedWard.name}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                                <Stethoscope size={12} /> Assigned Clinician
+                                            </label>
+                                            <div className="relative">
+                                                <select 
+                                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 px-5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none appearance-none font-bold text-gray-700 shadow-sm"
+                                                    value={admissionData.doctorId}
+                                                    onChange={(e) => setAdmissionData({...admissionData, doctorId: e.target.value})}
+                                                >
+                                                    <option value="">System Default Doctor</option>
+                                                    {wardStaff.filter(s => s.role.toLowerCase() === 'doctor').map(doc => (
+                                                        <option key={doc.id} value={doc.id}>{doc.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                )}
-                                <div className="pt-2">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Medical Checkups</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {['Blood Test', 'X-Ray', 'ECG', 'MRI Scan', 'Urine Test'].map((checkup) => (
+                                </div>
+
+                                <div className="pt-6 border-t border-gray-100">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-5 px-1 flex items-center gap-2">
+                                        <Activity size={12} /> Prescribed Initial Checkups
+                                    </label>
+                                    <div className="flex flex-wrap gap-3">
+                                        {['Blood Test', 'X-Ray', 'ECG', 'MRI Scan', 'Urine Test', 'BP Check', 'Glucose Test'].map((checkup) => (
                                             <button
                                                 key={checkup}
                                                 type="button"
                                                 onClick={() => toggleCheckup(checkup)}
-                                                className={`py-1.5 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                                                className={`py-2.5 px-5 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${
                                                     (admissionData.checkups || []).includes(checkup)
-                                                        ? 'bg-teal-50 border-teal-200 text-teal-700'
-                                                        : 'bg-white border-gray-200 text-gray-400 hover:border-teal-200'
+                                                        ? 'bg-teal-50 border-teal-300 text-teal-700 shadow-sm'
+                                                        : 'bg-white border-gray-100 text-gray-400 hover:border-emerald-200 hover:text-emerald-500'
                                                 }`}
                                             >
                                                 {checkup}
@@ -581,51 +619,64 @@ const WardModule = () => {
                                         ))}
                                     </div>
                                 </div>
-                            </div>
-                            <button type="submit" className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold text-sm hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
-                                <CheckCircle size={18} /> Process Admission
-                            </button>
-                        </form>
+
+                                <div className="pt-4 sticky bottom-0 bg-transparent">
+                                    <button type="submit" className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-[0.25em] hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 flex items-center justify-center gap-4 active:scale-95 group">
+                                        Confirm Admission <CheckCircle size={24} className="group-hover:rotate-12 transition-transform" />
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
 
+
+
             {/* Modal: Add Staff */}
             {showAddStaffModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in transition-all">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
                         <div className="p-6 bg-gradient-to-r from-indigo-600 to-purple-700 text-white flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-xl">
-                                    <Stethoscope size={20} />
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/20 rounded-2xl shadow-inner backdrop-blur-md">
+                                    <Stethoscope size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg">Assign Staff</h3>
-                                    <p className="text-xs text-indigo-100 opacity-80 uppercase tracking-widest font-bold">To: {selectedWard?.name}</p>
+                                    <h3 className="font-bold text-xl tracking-tight">Staff Assignment</h3>
+                                    <p className="text-[10px] text-indigo-100 opacity-90 uppercase tracking-[0.2em] font-black">To: {selectedWard?.name}</p>
                                 </div>
                             </div>
                             <button onClick={() => setShowAddStaffModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                                <X size={20} />
+                                <X size={24} />
                             </button>
                         </div>
-                        <form onSubmit={handleAddStaff} className="p-8 space-y-6">
-                            <div className="space-y-4">
+                        <form onSubmit={handleAddStaff} className="p-8 space-y-8">
+                            <div className="space-y-6">
                                 <div>
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Staff Name</label>
-                                    <input 
-                                        required
-                                        type="text" 
-                                        placeholder="Dr. Gregory House"
-                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-                                        value={newStaff.name}
-                                        onChange={(e) => setNewStaff({...newStaff, name: e.target.value})}
-                                    />
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                        <Users size={12} /> Staff Details
+                                    </label>
+                                    <div className="relative group">
+                                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+                                        <input 
+                                            required
+                                            type="text" 
+                                            placeholder="Dr. Gregory House"
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 pl-12 pr-5 text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all shadow-sm"
+                                            value={newStaff.name}
+                                            onChange={(e) => setNewStaff({...newStaff, name: e.target.value})}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Role</label>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                            <Activity size={12} /> Designation Role
+                                        </label>
                                         <select 
-                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none"
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none font-bold text-gray-700 shadow-sm"
                                             value={newStaff.role}
                                             onChange={(e) => setNewStaff({...newStaff, role: e.target.value})}
                                         >
@@ -634,9 +685,11 @@ const WardModule = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Shift</label>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                            <Clock size={12} /> Duty Shift
+                                        </label>
                                         <select 
-                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none"
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none font-bold text-gray-700 shadow-sm"
                                             value={newStaff.shift}
                                             onChange={(e) => setNewStaff({...newStaff, shift: e.target.value})}
                                         >
@@ -647,8 +700,8 @@ const WardModule = () => {
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">
-                                <Plus size={18} /> Assign Staff
+                            <button type="submit" className="w-full py-4.5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-3 active:scale-95 group">
+                                <Plus size={18} /> Confirm Assignment
                             </button>
                         </form>
                     </div>
