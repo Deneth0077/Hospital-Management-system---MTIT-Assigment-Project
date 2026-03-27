@@ -22,9 +22,38 @@ const WardModule = () => {
 
     // Form states
     const [newWard, setNewWard] = useState({ name: '', capacity: 1, type: 'General' });
-    const [admissionData, setAdmissionData] = useState({ name: '', disease: '', severity: 'moderate', bedId: '', wardId: '', doctorId: '', checkups: [] });
+    const [admissionData, setAdmissionData] = useState({ 
+        name: '', 
+        disease: '', 
+        severity: 'moderate', 
+        bedId: '', 
+        wardId: '', 
+        doctorId: '', 
+        checkups: [],
+        admissionDate: new Date().toISOString().slice(0, 16)
+    });
     const [newStaff, setNewStaff] = useState({ name: '', role: 'doctor', shift: 'morning' });
     const [wardStaff, setWardStaff] = useState([]);
+    const [selectedBedPatient, setSelectedBedPatient] = useState(null);
+    const [showPatientInfoModal, setShowPatientInfoModal] = useState(false);
+
+    const handleBedClick = (bed) => {
+        if (bed.status === 'occupied') {
+            const patient = patients.find(p => p.bedId === bed.id);
+            if (patient) {
+                const doc = wardStaff.find(s => s.id === patient.doctorId);
+                setSelectedBedPatient({ ...patient, doctorName: doc ? doc.name : 'Unknown Doctor', bedNumber: bed.bedNumber });
+                setShowPatientInfoModal(true);
+            }
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'Not available';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' at ' + 
+               date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    };
 
     const toggleCheckup = (checkup) => {
         setAdmissionData(prev => {
@@ -139,7 +168,16 @@ const WardModule = () => {
         try {
             await wardService.admitPatient(admissionData);
             setShowAdmitModal(false);
-            setAdmissionData({ name: '', disease: '', severity: 'moderate', bedId: '', wardId: '', doctorId: '', checkups: [] });
+            setAdmissionData({ 
+                name: '', 
+                disease: '', 
+                severity: 'moderate', 
+                bedId: '', 
+                wardId: '', 
+                doctorId: '', 
+                checkups: [],
+                admissionDate: new Date().toISOString().slice(0, 16)
+            });
             if (selectedWard) fetchWardDetails(selectedWard.id);
             fetchWards(); // Update capacity counts
         } catch (error) {
@@ -285,14 +323,15 @@ const WardModule = () => {
                                     return (
                                         <div key={bed.id} className="flex flex-col items-center gap-1 group">
                                             <div 
+                                                onClick={() => handleBedClick(bed)}
                                                 className={`w-full aspect-square rounded-xl flex items-center justify-center cursor-pointer transition-all border-2 
                                                     ${isOccupied 
-                                                        ? 'bg-blue-100 border-blue-200 text-blue-600 hover:bg-blue-200' 
+                                                        ? 'bg-blue-100 border-blue-200 text-blue-600 hover:bg-blue-200 shadow-sm' 
                                                         : isMaintenance
                                                             ? 'bg-red-50 border-red-200 text-red-400'
                                                             : 'bg-gray-50 border-gray-100 text-gray-300 hover:border-blue-300'
                                                     }`}
-                                                title={isOccupied ? `Patient ID: ${bed.patientId}` : bed.status}
+                                                title={isOccupied ? `Click to view patient details` : bed.status}
                                             >
                                                 <Bed size={16} />
                                             </div>
@@ -496,22 +535,21 @@ const WardModule = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                    {/* Column 1: Patient Primary Info */}
                                     <div className="space-y-8">
                                         <div className="space-y-6">
                                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
                                                 <Users size={12} /> Patient Information
                                             </label>
                                             <div className="space-y-4">
-                                                <div className="group">
-                                                    <input 
-                                                        required
-                                                        type="text" 
-                                                        placeholder="Full Patient Name"
-                                                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 px-5 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition-all shadow-sm"
-                                                        value={admissionData.name}
-                                                        onChange={(e) => setAdmissionData({...admissionData, name: e.target.value})}
-                                                    />
-                                                </div>
+                                                <input 
+                                                    required
+                                                    type="text" 
+                                                    placeholder="Full Patient Name"
+                                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 px-5 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition-all shadow-sm"
+                                                    value={admissionData.name}
+                                                    onChange={(e) => setAdmissionData({...admissionData, name: e.target.value})}
+                                                />
                                                 <div className="relative group">
                                                     <Stethoscope className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors" size={18} />
                                                     <input 
@@ -547,13 +585,30 @@ const WardModule = () => {
                                                 ))}
                                             </div>
                                         </div>
+
+                                        <div className="space-y-4">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                                <Clock size={12} /> Admission Date & Time
+                                            </label>
+                                            <div className="relative group">
+                                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors" size={18} />
+                                                <input 
+                                                    required
+                                                    type="datetime-local" 
+                                                    className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 pl-12 pr-5 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition-all shadow-sm font-bold text-gray-600"
+                                                    value={admissionData.admissionDate}
+                                                    onChange={(e) => setAdmissionData({...admissionData, admissionDate: e.target.value})}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
+                                    {/* Column 2: Assignment Details */}
                                     <div className="space-y-8">
                                         {selectedWard && (
                                             <div className="space-y-4">
                                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
-                                                    <Bed size={12} /> Bed Assignment
+                                                    <Bed size={12} /> Bed Selection
                                                 </label>
                                                 <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
                                                     <div className="grid grid-cols-5 gap-3 mb-4">
@@ -573,7 +628,7 @@ const WardModule = () => {
                                                             </button>
                                                         ))}
                                                     </div>
-                                                    <p className="text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest italic">Available in {selectedWard.name}</p>
+                                                    <p className="text-[10px] font-bold text-gray-400 text-center uppercase tracking-widest italic leading-tight">Displayed beds are available in {selectedWard.name}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -620,7 +675,7 @@ const WardModule = () => {
                                     </div>
                                 </div>
 
-                                <div className="pt-4 sticky bottom-0 bg-transparent">
+                                <div className="pt-4 sticky bottom-0 bg-white/80 backdrop-blur-md pb-4">
                                     <button type="submit" className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-sm uppercase tracking-[0.25em] hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 flex items-center justify-center gap-4 active:scale-95 group">
                                         Confirm Admission <CheckCircle size={24} className="group-hover:rotate-12 transition-transform" />
                                     </button>
@@ -704,6 +759,81 @@ const WardModule = () => {
                                 <Plus size={18} /> Confirm Assignment
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Modal: Patient Bed Info */}
+            {showPatientInfoModal && selectedBedPatient && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in transition-all">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 border border-blue-100">
+                        <div className="p-6 bg-gradient-to-r from-blue-700 to-indigo-800 text-white flex justify-between items-center shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/20 rounded-2xl shadow-inner backdrop-blur-md">
+                                    <Bed size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-xl tracking-tight">Bed B-{selectedBedPatient.bedNumber}</h3>
+                                    <p className="text-[10px] text-blue-100 opacity-90 uppercase tracking-[0.2em] font-black">Patient Details</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowPatientInfoModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        
+                        <div className="p-8 space-y-8">
+                            <div className="flex flex-col items-center text-center pb-6 border-b border-gray-100">
+                                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-4 border-2 border-blue-100 shadow-inner">
+                                    <UserPlus size={40} />
+                                </div>
+                                <h4 className="text-2xl font-black text-gray-900 tracking-tight">{selectedBedPatient.name}</h4>
+                                <span className={`mt-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                                    selectedBedPatient.severity === 'critical' ? 'bg-red-100 text-red-600' : 
+                                    selectedBedPatient.severity === 'moderate' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
+                                }`}>
+                                    {selectedBedPatient.severity} severity
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-6">
+                                <div className="flex items-center gap-4 group">
+                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
+                                        <Activity size={20} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Diagnosis / Disease</span>
+                                        <span className="text-sm font-bold text-gray-700">{selectedBedPatient.disease}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 group">
+                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                                        <Stethoscope size={20} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Attending Physician</span>
+                                        <span className="text-sm font-bold text-gray-700">{selectedBedPatient.doctorName}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 group">
+                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors">
+                                        <Clock size={20} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Admission Timestamp</span>
+                                        <span className="text-sm font-bold text-gray-700">{formatDate(selectedBedPatient.admissionDate)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button 
+                                onClick={() => setShowPatientInfoModal(false)}
+                                className="w-full py-4.5 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3"
+                            >
+                                <CheckCircle size={18} /> Close Profile
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

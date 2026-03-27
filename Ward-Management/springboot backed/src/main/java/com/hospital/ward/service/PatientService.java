@@ -92,6 +92,7 @@ public class PatientService {
                 .nurseId(nurse.getId())
                 .status("admitted")
                 .checkups(request.getCheckups() != null ? request.getCheckups() : new java.util.ArrayList<>())
+                .admissionDate(request.getAdmissionDate() != null ? request.getAdmissionDate() : LocalDateTime.now())
                 .build();
         Patient savedPatient = patientRepository.save(patient);
 
@@ -173,6 +174,7 @@ public class PatientService {
                 .nurseId(patient.getNurseId())
                 .status(patient.getStatus())
                 .checkups(patient.getCheckups())
+                .admissionDate(patient.getAdmissionDate())
                 .build();
     }
 }

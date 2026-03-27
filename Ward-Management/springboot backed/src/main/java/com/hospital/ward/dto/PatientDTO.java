@@ -38,6 +38,9 @@ public class PatientDTO {
 
         @Schema(example = "[\"Blood Test\", \"X-Ray\"]")
         private java.util.List<String> checkups;
+
+        @Schema(example = "2024-03-28T12:00:00")
+        private java.time.LocalDateTime admissionDate;
     }
 
     @Data
@@ -66,5 +69,8 @@ public class PatientDTO {
 
         @Schema(example = "[\"Blood Test\", \"X-Ray\"]")
         private java.util.List<String> checkups;
+
+        @Schema(example = "2024-03-28T12:00:00")
+        private java.time.LocalDateTime admissionDate;
     }
 }

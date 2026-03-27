@@ -36,4 +36,5 @@ public class Patient {
     private String status; // admitted, discharged
 
     private java.util.List<String> checkups;
+    private java.time.LocalDateTime admissionDate;
 }

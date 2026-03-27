@@ -142,7 +142,7 @@ const DashboardLayout = ({ onLogout }) => {
     };
 
     return (
-        <div className="flex bg-[#f5f8fb] min-h-screen">
+        <div className="flex bg-[#f5f8fb] h-screen overflow-hidden">
             <Sidebar activeModule={activeModule} setActiveModule={setActiveModule} onLogout={onLogout} />
             <main className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
                 <header className="h-20 flex justify-between items-center mb-4 pt-4">
