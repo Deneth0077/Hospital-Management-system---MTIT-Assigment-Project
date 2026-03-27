@@ -36,6 +36,9 @@ public class PatientDTO {
         @Schema(example = "934hdc2f... ")
         private String doctorId;
 
+        @Schema(example = "admitted", allowableValues = {"admitted", "discharged"})
+        private String status;
+
         @Schema(example = "[\"Blood Test\", \"X-Ray\"]")
         private java.util.List<String> checkups;
 
@@ -72,5 +75,8 @@ public class PatientDTO {
 
         @Schema(example = "2024-03-28T12:00:00")
         private java.time.LocalDateTime admissionDate;
+
+        @Schema(example = "2024-03-31T10:00:00")
+        private java.time.LocalDateTime dischargeDate;
     }
 }

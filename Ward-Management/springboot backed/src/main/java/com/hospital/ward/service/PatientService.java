@@ -162,6 +162,58 @@ public class PatientService {
         patientRepository.deleteById(id);
     }
 
+    @Transactional
+    public PatientDTO.Response dischargePatient(String id) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + id));
+        
+        if ("discharged".equalsIgnoreCase(patient.getStatus())) {
+            throw new RuntimeException("Patient is already discharged");
+        }
+
+        // 1. Update Bed Status
+        if (patient.getBedId() != null) {
+            Bed bed = bedRepository.findById(patient.getBedId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Bed not found for patient"));
+            bed.setStatus("available");
+            bed.setPatientId(null);
+            bedRepository.save(bed);
+
+            // 2. Update Ward Available Beds
+            Ward ward = wardRepository.findById(patient.getWardId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Ward not found for patient"));
+            ward.setAvailableBeds(ward.getAvailableBeds() + 1);
+            wardRepository.save(ward);
+        }
+
+        // 3. Update Staff Assignments
+        if (patient.getDoctorId() != null) {
+            staffRepository.findById(patient.getDoctorId()).ifPresent(doctor -> {
+                if (doctor.getAssignedPatients() != null) {
+                    doctor.getAssignedPatients().remove(id);
+                    staffRepository.save(doctor);
+                }
+            });
+        }
+        if (patient.getNurseId() != null) {
+            staffRepository.findById(patient.getNurseId()).ifPresent(nurse -> {
+                if (nurse.getAssignedPatients() != null) {
+                    nurse.getAssignedPatients().remove(id);
+                    staffRepository.save(nurse);
+                }
+            });
+        }
+
+        // 4. Update Patient Status
+        patient.setStatus("discharged");
+        patient.setDischargeDate(LocalDateTime.now());
+        
+        Patient savedPatient = patientRepository.save(patient);
+        log.info("Patient {} has been discharged", patient.getName());
+        
+        return mapToResponse(savedPatient);
+    }
+
     private PatientDTO.Response mapToResponse(Patient patient) {
         return PatientDTO.Response.builder()
                 .id(patient.getId())
@@ -175,6 +227,7 @@ public class PatientService {
                 .status(patient.getStatus())
                 .checkups(patient.getCheckups())
                 .admissionDate(patient.getAdmissionDate())
+                .dischargeDate(patient.getDischargeDate())
                 .build();
     }
 }

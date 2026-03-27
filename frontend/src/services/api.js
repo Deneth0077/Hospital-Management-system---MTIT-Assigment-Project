@@ -46,6 +46,7 @@ export const wardService = {
     getPatientById: (id) => wardApi.get(`/patients/${id}`),
     updatePatient: (id, data) => wardApi.put(`/patients/${id}`, data),
     deletePatient: (id) => wardApi.delete(`/patients/${id}`),
+    dischargePatient: (id) => wardApi.post(`/patients/${id}/discharge`),
 
     // Staff
     getAllStaff: () => wardApi.get('/staff'),

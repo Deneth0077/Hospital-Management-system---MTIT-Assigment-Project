@@ -96,7 +96,7 @@ const WardModule = () => {
                 wardService.getStaffByWard(wardId)
             ]);
             setBeds(bedsRes.data);
-            setPatients(patientsRes.data.filter(p => p.wardId === wardId));
+            setPatients(patientsRes.data.filter(p => p.wardId === wardId && p.status === 'admitted'));
             setWardStaff(staffRes.data);
         } catch (error) {
             console.error("Error fetching ward details:", error);
@@ -183,6 +183,19 @@ const WardModule = () => {
         } catch (error) {
             console.error("Error admitting patient:", error);
             alert("Failed to admit patient. " + (error.response?.data?.message || ""));
+        }
+    };
+
+    const handleDischargePatient = async (patientId) => {
+        if (!window.confirm("Are you sure you want to discharge this patient? This will free up the bed.")) return;
+        try {
+            await wardService.dischargePatient(patientId);
+            setShowPatientInfoModal(false);
+            if (selectedWard) fetchWardDetails(selectedWard.id);
+            fetchWards(); // Update capacity counts
+        } catch (error) {
+            console.error("Error discharging patient:", error);
+            alert("Failed to discharge patient. " + (error.response?.data?.message || ""));
         }
     };
 
@@ -827,12 +840,20 @@ const WardModule = () => {
                                 </div>
                             </div>
 
-                            <button 
-                                onClick={() => setShowPatientInfoModal(false)}
-                                className="w-full py-4.5 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3"
-                            >
-                                <CheckCircle size={18} /> Close Profile
-                            </button>
+                            <div className="space-y-3">
+                                <button 
+                                    onClick={() => handleDischargePatient(selectedBedPatient.id)}
+                                    className="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-red-100 transition-all border border-red-100 flex items-center justify-center gap-3 active:scale-95"
+                                >
+                                    <Activity size={18} /> Discharge Patient
+                                </button>
+                                <button 
+                                    onClick={() => setShowPatientInfoModal(false)}
+                                    className="w-full py-4.5 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3"
+                                >
+                                    <CheckCircle size={18} /> Close Profile
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
