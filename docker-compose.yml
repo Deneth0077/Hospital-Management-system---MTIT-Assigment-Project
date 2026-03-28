@@ -33,11 +33,21 @@ services:
   #   ports:
   #     - "8080:8080"
   
-  # 4. Doctor Service (Member 2)
-  # doctor-service:
-  #   build: ./doctor_service
-  #   ports:
-  #     - "8081:8081"
+  # 4. Doctor Service
+  doctor-service:
+    build: ./doctor_service
+    # No ports exposed directly to avoid multiple ports as per guidelines
+    # ports:
+    #   - "8081:8081"
+
+  # API Gateway
+  api-gateway:
+    build: ./api_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - doctor-service
+      - auth-backend
 
   # 5. Patient Service (Member 3)
   # patient-service:

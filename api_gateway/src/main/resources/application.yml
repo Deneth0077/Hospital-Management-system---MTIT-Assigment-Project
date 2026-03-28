@@ -1,0 +1,21 @@
+server:
+  port: 8000
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: doctor-service
+          uri: http://doctor-service:8081
+          predicates:
+            - Path=/api/doctors/**
+        - id: auth-service
+          uri: http://auth-backend:5000
+          predicates:
+            - Path=/api/auth/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"

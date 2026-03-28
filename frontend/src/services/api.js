@@ -1,12 +1,12 @@
 
 import axios from 'axios';
 
-// 1. Auth Service (Node backend)
+// 1. Auth Service (via Gateway)
 const api = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:5000/api',
+    baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:5000/api/auth',
 });
 
-// 2. Doctor Service
+// 2. Doctor Service (via Gateway)
 export const doctorApi = axios.create({
     baseURL: import.meta.env.VITE_DOCTOR_API_URL || 'http://localhost:8081/api',
 });
@@ -39,7 +39,7 @@ export const labApi = axios.create({
 // Admin Login handling
 export const login = async (email, password) => {
     try {
-        const response = await api.post('/auth/login', { email, password });
+        const response = await api.post('/login', { email, password });
         return response.data;
     } catch (error) {
         throw error.response ? error.response.data : { message: 'Network error' };
