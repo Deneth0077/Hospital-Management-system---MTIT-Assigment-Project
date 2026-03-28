@@ -1,8 +1,0 @@
-com\hospital\doctorservice\model\Doctor.class
-com\hospital\doctorservice\config\OpenApiConfig.class
-com\hospital\doctorservice\config\DataInitializer.class
-com\hospital\doctorservice\config\CorsConfig.class
-com\hospital\doctorservice\controller\DoctorController.class
-com\hospital\doctorservice\repository\DoctorRepository.class
-com\hospital\doctorservice\DoctorServiceApplication.class
-com\hospital\doctorservice\service\DoctorService.class
