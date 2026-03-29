@@ -166,7 +166,11 @@ const WardModule = () => {
     const handleAdmitPatient = async (e) => {
         e.preventDefault();
         try {
-            await wardService.admitPatient(admissionData);
+            const dataToSubmit = {
+                ...admissionData,
+                admissionDate: admissionData.admissionDate + ":00"
+            };
+            await wardService.admitPatient(dataToSubmit);
             setShowAdmitModal(false);
             setAdmissionData({ 
                 name: '', 

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final NotificationService notificationService;
 
     public ScheduleDTO.Response createSchedule(ScheduleDTO.Request request) {
         Schedule schedule = Schedule.builder()
@@ -24,6 +25,11 @@ public class ScheduleService {
                 .status(request.getStatus())
                 .build();
         Schedule savedSchedule = scheduleRepository.save(schedule);
+
+        // Send Notification
+        notificationService.sendNotification("SCHEDULE", savedSchedule.getPatientId(), 
+                "New treatment scheduled: " + savedSchedule.getTreatment());
+
         return mapToResponse(savedSchedule);
     }
 

@@ -25,6 +25,7 @@ public class PatientService {
     private final BedRepository bedRepository;
     private final StaffRepository staffRepository;
     private final ScheduleRepository scheduleRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public PatientDTO.Response admitPatient(PatientDTO.Request request) {
@@ -118,6 +119,10 @@ public class PatientService {
         log.info("Admission completed for patient: {}. Assigned to Ward: {}, Bed: {}", 
                  savedPatient.getName(), ward.getName(), bed.getBedNumber());
 
+        // Send Notification
+        notificationService.sendNotification("ADMISSION", savedPatient.getId(), 
+                "Patient " + savedPatient.getName() + " has been admitted to ward " + ward.getName());
+
         return mapToResponse(savedPatient);
     }
 
@@ -210,7 +215,11 @@ public class PatientService {
         
         Patient savedPatient = patientRepository.save(patient);
         log.info("Patient {} has been discharged", patient.getName());
-        
+
+        // Send Notification
+        notificationService.sendNotification("DISCHARGE", savedPatient.getId(), 
+                "Patient " + savedPatient.getName() + " has been discharged from ward " + patient.getWardId());
+
         return mapToResponse(savedPatient);
     }
 

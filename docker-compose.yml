@@ -12,6 +12,7 @@ services:
         - VITE_APPOINTMENT_API_URL=http://localhost:8083/api
         - VITE_PHARMACY_API_URL=http://localhost:8084/api
         - VITE_LAB_API_URL=http://localhost:8085/api
+        - VITE_NOTIFICATION_API_URL=http://localhost:5001/api/notifications
     ports:
       - "5173:80"
     depends_on:
@@ -34,8 +35,20 @@ services:
     restart: always
     environment:
       - 'SPRING_PROFILES_ACTIVE=default'
+      - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001/api/notifications/notify'
 
-  # 4. Doctor Service (Member 2)
+  # 4. Notification Service (Node.js)
+  notification-service:
+    build:
+      context: "./notification-service"
+    ports:
+      - "5001:5001"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Notification_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5001'
+    restart: always
+
+  # 5. Doctor Service (Member 2)
   # doctor-service:
   #   build: ./doctor_service
   #   ports:
