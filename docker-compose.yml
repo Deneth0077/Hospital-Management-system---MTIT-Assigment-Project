@@ -5,33 +5,22 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_AUTH_API_URL=http://localhost:5000/api
-        - VITE_WARD_API_URL=http://localhost:8080/api
-        - VITE_DOCTOR_API_URL=http://localhost:8081/api
-        - VITE_PATIENT_API_URL=http://localhost:8082/api
-        - VITE_APPOINTMENT_API_URL=http://localhost:8083/api
-        - VITE_PHARMACY_API_URL=http://localhost:8084/api
-        - VITE_LAB_API_URL=http://localhost:8085/api
-        - VITE_NOTIFICATION_API_URL=http://localhost:5001/api/notifications
+        - VITE_API_GATEWAY_URL=http://localhost:8000/api
     ports:
       - "5173:80"
     depends_on:
-      - auth-backend
-      - ward-service
+      - api-gateway
 
   # 2. Login Auth (Node.js)
   auth-backend:
     build:
       context: "./node backend"
-    ports:
-      - "5000:5000"
+    # Ports: 5000:5000 (hidden behind gateway or kept for debugging)
 
   # 3. Ward Service (Spring Boot + MongoDB Atlas)
   ward-service:
     build:
       context: "./Ward-Management/springboot backed"
-    ports:
-      - "8080:8080"
     restart: always
     environment:
       - 'SPRING_PROFILES_ACTIVE=default'
@@ -41,14 +30,24 @@ services:
   notification-service:
     build:
       context: "./notification-service"
-    ports:
-      - "5001:5001"
     environment:
       - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Notification_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
       - 'PORT=5001'
     restart: always
 
-  # 5. Doctor Service (Member 2)
+  # 5. API Gateway (Node.js)
+  api-gateway:
+    build:
+      context: "./api-gateway"
+    ports:
+      - "8000:8000"
+    environment:
+      - 'AUTH_SERVICE_URL=http://auth-backend:5000'
+      - 'WARD_SERVICE_URL=http://ward-service:8080'
+      - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001'
+    restart: always
+
+  # 6. Doctor Service (Member 2)
   # doctor-service:
   #   build: ./doctor_service
   #   ports:

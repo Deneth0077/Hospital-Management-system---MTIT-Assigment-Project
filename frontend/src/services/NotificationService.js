@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5001/api/notifications';
+const API_URL = (import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8000/api') + '/notifications';
 
 const NotificationService = {
     getNotifications: async (recipientId) => {

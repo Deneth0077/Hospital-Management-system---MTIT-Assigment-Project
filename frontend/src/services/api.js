@@ -1,29 +1,31 @@
 
 import axios from 'axios';
 
+const GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8000/api';
+
 // 1. Auth Service (Node backend)
 const api = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:5000/api',
+    baseURL: GATEWAY_URL + '/auth',
 });
 
 // 2. Doctor Service
 export const doctorApi = axios.create({
-    baseURL: import.meta.env.VITE_DOCTOR_API_URL || 'http://localhost:8081/api',
+    baseURL: GATEWAY_URL, // Generic for now, gateway will route based on sub-path
 });
 
 // 3. Patient Service
 export const patientApi = axios.create({
-    baseURL: import.meta.env.VITE_PATIENT_API_URL || 'http://localhost:8082/api',
+    baseURL: GATEWAY_URL,
 });
 
 // 4. Appointment Service
 export const appointmentApi = axios.create({
-    baseURL: import.meta.env.VITE_APPOINTMENT_API_URL || 'http://localhost:8083/api',
+    baseURL: GATEWAY_URL,
 });
 
 // 5. Ward Service
 export const wardApi = axios.create({
-    baseURL: import.meta.env.VITE_WARD_API_URL || 'http://localhost:8080/api',
+    baseURL: GATEWAY_URL,
 });
 
 export const wardService = {
