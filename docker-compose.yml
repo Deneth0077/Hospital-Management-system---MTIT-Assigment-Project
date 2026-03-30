@@ -44,19 +44,38 @@ services:
     environment:
       - 'AUTH_SERVICE_URL=http://auth-backend:5000'
       - 'WARD_SERVICE_URL=http://ward-service:8080'
+      - 'DOCTOR_SERVICE_URL=http://doctor-service:8081'
+      - 'PATIENT_SERVICE_URL=http://patient-service:8082'
       - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001'
     restart: always
+    depends_on:
+      - auth-backend
+      - ward-service
+      - doctor-service
+      - patient-service
+      - notification-service
 
-  # 6. Doctor Service (Member 2)
-  # doctor-service:
-  #   build: ./doctor_service
-  #   ports:
-  #     - "8081:8081"
+  # 6. Doctor Service
+  doctor-service:
+    build: 
+      context: ./doctor_service
+    ports:
+      - "8081:8081"
 
-  # 5. Patient Service (Member 3)
-  # patient-service:
-  #   build: ./patient_service
-  #   ports:
-  #     - "8082:8082"
+  # 7. Patient Service
+  patient-service:
+    build: 
+      context: ./patient-service
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+      - MONGO_URI=mongodb://mongodb:27017/patientdb
+    depends_on:
+      - mongodb
 
-  # ... and so on for others
+  # MongoDB for Patient Service
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
