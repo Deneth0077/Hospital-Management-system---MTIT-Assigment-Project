@@ -51,7 +51,7 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 API Gateway running on port ${PORT}`);
+    console.log(`API Gateway running on port ${PORT}`);
     console.log(`- Auth Service -> ${AUTH_SERVICE}`);
     console.log(`- Ward Service -> ${WARD_SERVICE}`);
     console.log(`- Notification Service -> ${NOTIFICATION_SERVICE}`);
