@@ -1,0 +1,48 @@
+
+version: '3.8'
+
+services:
+  # 1. Frontend (HMR or Production via Nginx)
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_AUTH_API_URL=http://localhost:5000/api
+      - VITE_WARD_API_URL=http://localhost:8080/api
+      - VITE_DOCTOR_API_URL=http://localhost:8081/api
+      - VITE_PATIENT_API_URL=http://localhost:8082/api
+      - VITE_APPOINTMENT_API_URL=http://localhost:8083/api
+      - VITE_PHARMACY_API_URL=http://localhost:8084/api
+      - VITE_LAB_API_URL=http://localhost:8085/api
+    depends_on:
+      - auth-backend
+
+  # 2. Login Auth (Node.js)
+  auth-backend:
+    build:
+      context: "./node backend"
+    ports:
+      - "5000:5000"
+
+  # 3. Ward Service (User's part - Placeholder for Spring Boot)
+  # Replace with the path to your Spring Boot project folder if it's in a subdirectory
+  # ward-service:
+  #   build: ./ward_service
+  #   ports:
+  #     - "8080:8080"
+  
+  # 4. Doctor Service (Member 2)
+  # doctor-service:
+  #   build: ./doctor_service
+  #   ports:
+  #     - "8081:8081"
+
+  # 5. Patient Service (Member 3)
+  # patient-service:
+  #   build: ./patient_service
+  #   ports:
+  #     - "8082:8082"
+
+  # ... and so on for others
