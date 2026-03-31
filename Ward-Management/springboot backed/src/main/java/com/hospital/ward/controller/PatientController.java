@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/patients")
+@RequestMapping("/api/admissions")
 @RequiredArgsConstructor
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
 @Tag(name = "Patient Management", description = "Endpoints for managing hospital patients")
@@ -50,5 +50,11 @@ public class PatientController {
     public ResponseEntity<Void> deletePatient(@PathVariable String id) {
         patientService.deletePatient(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/discharge")
+    @Operation(summary = "Discharge a patient and free up the bed")
+    public ResponseEntity<PatientDTO.Response> dischargePatient(@PathVariable String id) {
+        return ResponseEntity.ok(patientService.dischargePatient(id));
     }
 }
