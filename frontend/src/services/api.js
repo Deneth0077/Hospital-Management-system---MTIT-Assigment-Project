@@ -42,13 +42,13 @@ export const wardService = {
     createBed: (data) => wardApi.post('/beds', data),
     updateBed: (id, data) => wardApi.put(`/beds/${id}`, data),
 
-    // Patients
-    getAllPatients: () => wardApi.get('/patients'),
-    admitPatient: (data) => wardApi.post('/patients/admit', data),
-    getPatientById: (id) => wardApi.get(`/patients/${id}`),
-    updatePatient: (id, data) => wardApi.put(`/patients/${id}`, data),
-    deletePatient: (id) => wardApi.delete(`/patients/${id}`),
-    dischargePatient: (id) => wardApi.post(`/patients/${id}/discharge`),
+    // Patients (Using /admissions to match Spring Boot controller)
+    getAllPatients: () => wardApi.get('/admissions'),
+    admitPatient: (data) => wardApi.post('/admissions/admit', data),
+    getPatientById: (id) => wardApi.get(`/admissions/${id}`),
+    updatePatient: (id, data) => wardApi.put(`/admissions/${id}`, data),
+    deletePatient: (id) => wardApi.delete(`/admissions/${id}`),
+    dischargePatient: (id) => wardApi.post(`/admissions/${id}/discharge`),
 
     // Staff
     getAllStaff: () => wardApi.get('/staff'),

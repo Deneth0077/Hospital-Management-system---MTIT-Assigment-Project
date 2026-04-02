@@ -812,7 +812,18 @@ const WardModule = () => {
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-6">
+                            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-50">
+                                <div className="p-3 bg-gray-50 rounded-2xl flex flex-col items-center">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Age / Gender</span>
+                                    <span className="text-xs font-bold text-gray-700">{selectedBedPatient.age || 'N/A'} / {selectedBedPatient.gender || 'N/A'}</span>
+                                </div>
+                                <div className="p-3 bg-gray-50 rounded-2xl flex flex-col items-center">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Blood Group</span>
+                                    <span className="text-xs font-bold text-red-500 font-mono">{selectedBedPatient.bloodGroup || 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4">
                                 <div className="flex items-center gap-4 group">
                                     <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
                                         <Activity size={20} />
@@ -824,12 +835,23 @@ const WardModule = () => {
                                 </div>
 
                                 <div className="flex items-center gap-4 group">
-                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors transition-colors">
                                         <Stethoscope size={20} />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Attending Physician</span>
                                         <span className="text-sm font-bold text-gray-700">{selectedBedPatient.doctorName}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 group">
+                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                                        <Users size={20} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Emergency Contact</span>
+                                        <span className="text-sm font-bold text-gray-700">{selectedBedPatient.emergencyContactName || 'None'}</span>
+                                        <span className="text-[10px] text-gray-400">{selectedBedPatient.emergencyContactPhone || ''}</span>
                                     </div>
                                 </div>
 
