@@ -37,7 +37,7 @@ app.use('/api/patients', createProxyMiddleware({
 }));
 
 // 4. Ward Management Service Proxies (Excluding /api/patients)
-const wardRoutes = ['/api/wards', '/api/beds', '/api/staff', '/api/schedules'];
+const wardRoutes = ['/api/wards', '/api/beds', '/api/staff', '/api/schedules', '/api/admissions'];
 wardRoutes.forEach(route => {
     app.use(route, createProxyMiddleware({
         target: WARD_SERVICE,

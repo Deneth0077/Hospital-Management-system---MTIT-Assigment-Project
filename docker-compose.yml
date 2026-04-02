@@ -51,31 +51,31 @@ services:
     depends_on:
       - auth-backend
       - ward-service
-      - doctor-service
-      - patient-service
+      # - doctor-service
+      # - patient-service
       - notification-service
 
-  # 6. Doctor Service
-  doctor-service:
-    build: 
-      context: ./doctor_service
-    ports:
-      - "8081:8081"
+  # 6. Doctor Service (No Dockerfile found in context)
+  # doctor-service:
+  #   build: 
+  #     context: ./doctor_service
+  #   ports:
+  #     - "8081:8081"
 
-  # 7. Patient Service
-  patient-service:
-    build: 
-      context: ./patient-service
-    ports:
-      - "8082:8082"
-    environment:
-      - PORT=8082
-      - MONGO_URI=mongodb://mongodb:27017/patientdb
-    depends_on:
-      - mongodb
+  # 7. Patient Service (This service is handled by ward-service admissions)
+  # patient-service:
+  #   build: 
+  #     context: ./patient-service
+  #   ports:
+  #     - "8082:8082"
+  #   environment:
+  #     - PORT=8082
+  #     - MONGO_URI=mongodb://mongodb:27017/patientdb
+  #   depends_on:
+  #     - mongodb
 
-  # MongoDB for Patient Service
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+  # MongoDB for Patient Service (Commented out if not needed)
+  # mongodb:
+  #   image: mongo:latest
+  #   ports:
+  #     - "27017:27017"
