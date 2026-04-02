@@ -47,12 +47,7 @@ public class Patient {
     private String emergencyContactPhone;
 
     private java.util.List<String> checkups;
-<<<<<<< HEAD
-    private java.time.LocalDateTime admissionDate;
-    private java.time.LocalDateTime dischargeDate;
-=======
 
     private LocalDateTime admissionDate;
     private LocalDateTime dischargeDate;
->>>>>>> origin/dev
 }

@@ -47,6 +47,7 @@ services:
       - 'DOCTOR_SERVICE_URL=http://doctor-service:8081'
       - 'PATIENT_SERVICE_URL=http://patient-service:8082'
       - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001'
+      - 'APPOINTMENT_SERVICE_URL=http://appointment-service:5002'
     restart: always
     depends_on:
       - auth-backend
@@ -54,6 +55,16 @@ services:
       # - doctor-service
       # - patient-service
       - notification-service
+      - appointment-service
+
+  # 6. Appointment Service (Node.js)
+  appointment-service:
+    build:
+      context: "./appoiment-management"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Appointment_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5002'
+    restart: always
 
   # 6. Doctor Service (No Dockerfile found in context)
   # doctor-service:
