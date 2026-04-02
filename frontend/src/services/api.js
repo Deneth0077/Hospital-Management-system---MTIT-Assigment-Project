@@ -76,8 +76,15 @@ export const pharmacyApi = axios.create({
 
 // 7. Lab Service
 export const labApi = axios.create({
-    baseURL: import.meta.env.VITE_LAB_API_URL || 'http://localhost:8085/api',
+    baseURL: GATEWAY_URL,
 });
+
+export const labService = {
+    getAllTests: () => labApi.get('/lab/tests'),
+    createTest: (data) => labApi.post('/lab/tests', data),
+    updateTestStatus: (id, status) => labApi.patch(`/lab/tests/${id}`, { status }),
+    deleteTest: (id) => labApi.delete(`/lab/tests/${id}`),
+};
 
 // Admin Login handling
 export const login = async (email, password) => {

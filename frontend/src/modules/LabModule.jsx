@@ -1,14 +1,90 @@
 
-import React, { useState } from 'react';
-import { Search, FlaskConical, Plus, Filter, MoreVertical, FileText, Download, CheckCircle2, Loader2, AlertTriangle, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, FlaskConical, Plus, Filter, MoreVertical, FileText, Download, CheckCircle2, Loader2, AlertTriangle, Eye, Trash2 } from 'lucide-react';
+import { labService } from '../services/api';
 
 const LabModule = () => {
-    const labTests = [
-        { id: "T-201", patient: "John Doe", test: "Complete Blood Count", type: "Hematology", urgency: "Stat", status: "Done", reportUrl: "#" },
-        { id: "T-202", patient: "Alice Smith", test: "Urinalysis", type: "Biochemistry", urgency: "Routine", status: "Processing", reportUrl: "#" },
-        { id: "T-203", patient: "Bob Johnson", test: "Chest X-Ray", type: "Radiology", urgency: "Stat", status: "Pending", reportUrl: "#" },
-        { id: "T-204", patient: "Emma Wilson", test: "Glucose Fasting", type: "Biochemistry", urgency: "Routine", status: "Done", reportUrl: "#" },
-    ];
+    const [labTests, setLabTests] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchTests();
+    }, []);
+
+    const fetchTests = async () => {
+        try {
+            setLoading(true);
+            const response = await labService.getAllTests();
+            setLabTests(response.data);
+            setLoading(false);
+        } catch (err) {
+            console.error("Error fetching lab tests:", err);
+            setError("Failed to load lab tests. Please try again later.");
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateStatus = async (id, newStatus) => {
+        try {
+            await labService.updateTestStatus(id, newStatus);
+            fetchTests();
+        } catch (err) {
+            console.error("Error updating status:", err);
+            alert("Failed to update status");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm("Are you sure you want to delete this test?")) return;
+        try {
+            await labService.deleteTest(id);
+            fetchTests();
+        } catch (err) {
+            console.error("Error deleting test:", err);
+            alert("Failed to delete test");
+        }
+    };
+
+    const handleRequestTest = async () => {
+        const patient = prompt("Enter Patient Name:", "Jane Doe");
+        const test = prompt("Enter Test Name:", "Blood Test");
+        const type = prompt("Enter Category:", "Hematology");
+        if (!patient || !test || !type) return;
+
+        try {
+            await labService.createTest({
+                id: `T-${Math.floor(Math.random() * 1000)}`,
+                patient,
+                test,
+                type,
+                urgency: 'Routine',
+                status: 'Pending'
+            });
+            fetchTests();
+        } catch (err) {
+            console.error("Error creating test:", err);
+            alert("Failed to create test");
+        }
+    };
+
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center h-64 text-blue-600">
+            <Loader2 className="animate-spin mb-4" size={48} />
+            <p className="font-bold">Loading Lab Data...</p>
+        </div>
+    );
+
+    if (error) return (
+        <div className="p-8 bg-red-50 border border-red-200 rounded-2xl text-red-600 flex items-center gap-4">
+            <AlertTriangle size={32} />
+            <div>
+                <h3 className="font-bold text-lg">Error</h3>
+                <p>{error}</p>
+                <button onClick={fetchTests} className="mt-2 bg-red-600 text-white px-4 py-1.5 rounded-lg font-bold text-sm">Retry</button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="space-y-6">
@@ -23,16 +99,19 @@ const LabModule = () => {
                         />
                     </div>
                 </div>
-                <button className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+                <button 
+                    onClick={handleRequestTest}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
+                >
                     <Plus size={18} /> Request New Test
                 </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { label: "Pending Tests", value: 18, color: "text-orange-600 bg-orange-50 border-orange-100" },
-                    { label: "Processing", value: 12, color: "text-blue-600 bg-blue-50 border-blue-100" },
-                    { label: "Results Ready", value: 32, color: "text-green-600 bg-green-50 border-green-100" },
+                    { label: "Pending Tests", value: labTests.filter(t => t.status === 'Pending').length, color: "text-orange-600 bg-orange-50 border-orange-100" },
+                    { label: "Processing", value: labTests.filter(t => t.status === 'Processing').length, color: "text-blue-600 bg-blue-50 border-blue-100" },
+                    { label: "Results Ready", value: labTests.filter(t => t.status === 'Done').length, color: "text-green-600 bg-green-50 border-green-100" },
                 ].map((stat, i) => (
                     <div key={i} className={`p-6 rounded-2xl border ${stat.color} shadow-sm transition-all hover:shadow-md cursor-pointer flex justify-between items-center`}>
                         <div>
@@ -78,18 +157,29 @@ const LabModule = () => {
                                     </span>
                                 </td>
                                 <td className="px-6 py-5">
-                                    <span className={`flex items-center gap-1.5 text-[11px] font-bold ${
-                                        test.status === 'Done' ? 'text-green-600' :
-                                        test.status === 'Processing' ? 'text-blue-600' : 'text-orange-600'
-                                    }`}>
-                                        {test.status === 'Done' ? <CheckCircle2 size={14} /> : test.status === 'Processing' ? <Loader2 size={14} className="animate-spin" /> : <AlertTriangle size={14} />}
-                                        {test.status}
-                                    </span>
+                                    <select 
+                                        value={test.status}
+                                        onChange={(e) => handleUpdateStatus(test.id, e.target.value)}
+                                        className={`flex items-center gap-1.5 text-[11px] font-bold bg-transparent border-none focus:ring-0 cursor-pointer ${
+                                            test.status === 'Done' ? 'text-green-600' :
+                                            test.status === 'Processing' ? 'text-blue-600' : 'text-orange-600'
+                                        }`}
+                                    >
+                                        <option value="Pending">Pending</option>
+                                        <option value="Processing">Processing</option>
+                                        <option value="Done">Done</option>
+                                    </select>
                                 </td>
                                 <td className="px-6 py-5 text-right">
                                     <div className="flex items-center justify-end gap-3">
                                         <button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline transition-all">
                                             <Eye size={14} /> View
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDelete(test.id)}
+                                            className="p-2 rounded-lg bg-gray-100 text-red-500 hover:bg-red-50 transition-all"
+                                        >
+                                            <Trash2 size={14} />
                                         </button>
                                         <button className={`p-2 rounded-lg transition-all ${test.status === 'Done' ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-100' : 'bg-gray-100 text-gray-300 cursor-not-allowed'}`}>
                                             <Download size={14} />

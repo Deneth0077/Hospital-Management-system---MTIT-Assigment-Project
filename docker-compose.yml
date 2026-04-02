@@ -48,6 +48,7 @@ services:
       - 'PATIENT_SERVICE_URL=http://patient-service:8082'
       - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001'
       - 'APPOINTMENT_SERVICE_URL=http://appointment-service:5002'
+      - 'LAB_SERVICE_URL=http://lab-service:5003'
     restart: always
     depends_on:
       - auth-backend
@@ -56,6 +57,7 @@ services:
       # - patient-service
       - notification-service
       - appointment-service
+      - lab-service
 
   # 6. Appointment Service (Node.js)
   appointment-service:
@@ -67,6 +69,18 @@ services:
     environment:
       - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Appointment_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
       - 'PORT=5002'
+    restart: always
+
+  # 8. Lab Service (Node.js)
+  lab-service:
+    container_name: lab-service
+    build:
+      context: "./lab-management"
+    ports:
+      - "5003:5003"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Lab_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5003'
     restart: always
 
   # 6. Doctor Service (No Dockerfile found in context)

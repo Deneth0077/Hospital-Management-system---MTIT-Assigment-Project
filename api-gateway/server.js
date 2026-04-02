@@ -18,6 +18,7 @@ const DOCTOR_SERVICE = process.env.DOCTOR_SERVICE_URL || 'http://doctor-service:
 const PATIENT_SERVICE = process.env.PATIENT_SERVICE_URL || 'http://patient-service:8082';
 const NOTIFICATION_SERVICE = process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service:5001';
 const APPOINTMENT_SERVICE = process.env.APPOINTMENT_SERVICE_URL || 'http://appointment-service:5002';
+const LAB_SERVICE = process.env.LAB_SERVICE_URL || 'http://lab-service:5003';
 
 // 1. Auth Service Proxy
 app.use('/api/auth', createProxyMiddleware({
@@ -70,6 +71,14 @@ app.use('/api/appointments', createProxyMiddleware({
     proxyTimeout: 30000
 }));
 
+// 7. Lab Service Proxy
+app.use('/api/lab', createProxyMiddleware({
+    target: LAB_SERVICE,
+    changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000
+}));
+
 // Health Check
 app.get('/health', (req, res) => {
     res.json({
@@ -80,7 +89,8 @@ app.get('/health', (req, res) => {
             doctor: DOCTOR_SERVICE,
             patient: PATIENT_SERVICE,
             notifications: NOTIFICATION_SERVICE,
-            appointments: APPOINTMENT_SERVICE
+            appointments: APPOINTMENT_SERVICE,
+            lab: LAB_SERVICE
         }
     });
 });
@@ -93,4 +103,5 @@ app.listen(PORT, () => {
     console.log(`- Patient Service -> ${PATIENT_SERVICE}`);
     console.log(`- Notification Service -> ${NOTIFICATION_SERVICE}`);
     console.log(`- Appointment Service -> ${APPOINTMENT_SERVICE}`);
+    console.log(`- Lab Service -> ${LAB_SERVICE}`);
 });
