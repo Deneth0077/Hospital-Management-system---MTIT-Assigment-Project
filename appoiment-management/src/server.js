@@ -3,9 +3,12 @@ const connectDB = require("./config/db");
 
 const PORT = process.env.PORT || 5002;
 
-// Connect to Database
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+// Start Server & Connect to DB
+app.listen(PORT, () => {
+    console.log(`Appointment Service running on port ${PORT}`);
+    
+    // Attempt DB connection in background to avoid blocking server startup
+    connectDB().catch(err => {
+        console.error("Database initialization failed:", err.message);
     });
 });

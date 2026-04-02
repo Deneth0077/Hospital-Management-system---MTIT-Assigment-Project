@@ -60,6 +60,15 @@ export const wardService = {
     getAllSchedules: () => wardApi.get('/schedules'),
 };
 
+export const appointmentService = {
+    getAllAppointments: (params) => appointmentApi.get('/appointments', { params }),
+    getAppointmentById: (id) => appointmentApi.get(`/appointments/${id}`),
+    createAppointment: (data) => appointmentApi.post('/appointments', data),
+    updateAppointment: (id, data) => appointmentApi.put(`/appointments/${id}`, data),
+    deleteAppointment: (id) => appointmentApi.delete(`/appointments/${id}`),
+    getStats: () => appointmentApi.get('/appointments/stats'),
+};
+
 // 6. Pharmacy Service
 export const pharmacyApi = axios.create({
     baseURL: import.meta.env.VITE_PHARMACY_API_URL || 'http://localhost:8084/api',

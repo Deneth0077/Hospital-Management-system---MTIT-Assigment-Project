@@ -59,8 +59,11 @@ services:
 
   # 6. Appointment Service (Node.js)
   appointment-service:
+    container_name: appointment-service
     build:
       context: "./appoiment-management"
+    ports:
+      - "5002:5002"
     environment:
       - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Appointment_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
       - 'PORT=5002'
