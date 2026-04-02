@@ -39,6 +39,16 @@ public class PatientDTO {
         @Schema(example = "admitted", allowableValues = {"admitted", "discharged"})
         private String status;
 
+        private String age;
+        private String gender;
+        private String phone;
+        private String email;
+        private String address;
+        private String bloodGroup;
+        private String dateOfBirth;
+        private String emergencyContactName;
+        private String emergencyContactPhone;
+
         @Schema(example = "[\"Blood Test\", \"X-Ray\"]")
         private java.util.List<String> checkups;
 
@@ -69,6 +79,16 @@ public class PatientDTO {
         private String nurseId;
         @Schema(example = "admitted")
         private String status;
+
+        private String age;
+        private String gender;
+        private String phone;
+        private String email;
+        private String address;
+        private String bloodGroup;
+        private String dateOfBirth;
+        private String emergencyContactName;
+        private String emergencyContactPhone;
 
         @Schema(example = "[\"Blood Test\", \"X-Ray\"]")
         private java.util.List<String> checkups;

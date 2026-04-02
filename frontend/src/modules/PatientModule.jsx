@@ -8,7 +8,7 @@ const PatientModule = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState({
-        fullName: '',
+        name: '',          // Changed from fullName to name
         age: '',
         gender: 'Male',
         phone: '',
@@ -16,17 +16,19 @@ const PatientModule = () => {
         address: '',
         bloodGroup: 'O+',
         dateOfBirth: '',
+        disease: '',       // Added disease
+        severity: 'low',   // Added severity
         emergencyContactName: '',
         emergencyContactPhone: '',
-        status: 'Outpatient'
+        status: 'Admitted' // Changed default to Admitted to match backend expectation for admission flow
     });
 
     const fetchPatients = async () => {
         setLoading(true);
         try {
-            const response = await patientApi.get('/patients');
-            // Handle { success: true, data: [...] } format from controller
-            setPatients(response.data.data || response.data); 
+            // Updated to use the correct admissions endpoint from ward-service
+            const response = await patientApi.get('/admissions');
+            setPatients(response.data); 
         } catch (error) {
             console.error("Error fetching patients:", error);
         } finally {
@@ -46,24 +48,26 @@ const PatientModule = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await patientApi.post('/patients', formData);
+            // Using the correct admission endpoint
+            await patientApi.post('/admissions/admit', formData);
             setIsModalOpen(false);
             setFormData({ 
-                fullName: '', age: '', gender: 'Male', phone: '', email: '', 
+                name: '', age: '', gender: 'Male', phone: '', email: '', 
                 address: '', bloodGroup: 'O+', dateOfBirth: '', 
-                emergencyContactName: '', emergencyContactPhone: '', status: 'Outpatient' 
+                disease: '', severity: 'low',
+                emergencyContactName: '', emergencyContactPhone: '', status: 'Admitted' 
             });
             fetchPatients();
         } catch (error) {
             console.error("Error saving patient:", error);
-            alert("Failed to save patient. Check if all required fields are filled.");
+            alert("Failed to save patient. Check if all required fields (Name, Disease, Severity) are filled.");
         }
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this patient?")) return;
         try {
-            await patientApi.delete(`/patients/${id}`);
+            await patientApi.delete(`/admissions/${id}`);
             fetchPatients();
         } catch (error) {
             console.error("Error deleting patient:", error);
@@ -169,7 +173,7 @@ const PatientModule = () => {
                         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase">Full Name</label>
-                                <input type="text" name="fullName" required className="w-full bg-gray-50 border-none rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500" value={formData.fullName} onChange={handleInputChange} />
+                                <input type="text" name="name" required className="w-full bg-gray-50 border-none rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500" value={formData.name} onChange={handleInputChange} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -224,11 +228,25 @@ const PatientModule = () => {
                                     <input type="text" name="emergencyContactPhone" required className="w-full bg-gray-50 border-none rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500" value={formData.emergencyContactPhone} onChange={handleInputChange} />
                                 </div>
                             </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Disease</label>
+                                    <input type="text" name="disease" required className="w-full bg-gray-50 border-none rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500" value={formData.disease} onChange={handleInputChange} />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase">Severity</label>
+                                    <select name="severity" className="w-full bg-gray-50 border-none rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 appearance-none" value={formData.severity} onChange={handleInputChange}>
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div>
                                 <label className="text-[10px] font-bold text-gray-400 uppercase">Initial Status</label>
                                 <select name="status" className="w-full bg-gray-50 border-none rounded-xl p-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500 appearance-none" value={formData.status} onChange={handleInputChange}>
-                                    <option value="Outpatient">Outpatient</option>
                                     <option value="Admitted">Admitted</option>
+                                    <option value="Discharged">Discharged</option>
                                 </select>
                             </div>
                             <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-all mt-4">Register Patient</button>

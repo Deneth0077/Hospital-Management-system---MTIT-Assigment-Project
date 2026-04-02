@@ -36,6 +36,16 @@ public class Patient {
     @NotBlank(message = "Status is required")
     private String status; // admitted, discharged
 
+    private String age;
+    private String gender;
+    private String phone;
+    private String email;
+    private String address;
+    private String bloodGroup;
+    private String dateOfBirth;
+    private String emergencyContactName;
+    private String emergencyContactPhone;
+
     private java.util.List<String> checkups;
 
     private LocalDateTime admissionDate;
