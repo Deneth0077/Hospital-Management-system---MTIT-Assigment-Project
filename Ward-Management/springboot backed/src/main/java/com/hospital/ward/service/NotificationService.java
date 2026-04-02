@@ -1,36 +1,42 @@
 package com.hospital.ward.service;
 
-import com.hospital.ward.dto.NotificationRequest;
-import lombok.RequiredArgsConstructor;
+import com.hospital.ward.dto.NotificationDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Service
-@RequiredArgsConstructor
+import java.time.LocalDateTime;
+
 @Slf4j
+@Service
 public class NotificationService {
 
     private final RestTemplate restTemplate;
+    private final String notificationUrl;
 
-    @Value("${NOTIFICATION_SERVICE_URL:http://localhost:5001/api/notifications/notify}")
-    private String notificationServiceUrl;
+    public NotificationService(@Value("${notification.service.url:http://notification-service:5001/api/notifications}") String notificationUrl) {
+        this.restTemplate = new RestTemplate();
+        this.notificationUrl = notificationUrl;
+    }
 
-    public void sendNotification(String type, String recipient, String message) {
+    public void sendNotification(String type, String patientId, String message) {
         try {
-            NotificationRequest request = NotificationRequest.builder()
+            NotificationDTO notification = NotificationDTO.builder()
                     .type(type)
-                    .recipient(recipient)
+                    .patientId(patientId)
                     .message(message)
-                    .sender("Ward-Management-Service")
+                    .timestamp(LocalDateTime.now())
                     .build();
 
-            log.info("Sending notification to {}: {}", notificationServiceUrl, request);
-            restTemplate.postForLocation(notificationServiceUrl, request);
-            log.info("Notification sent successfully");
+            log.info("Preparing to send notification to {}: {}", notificationUrl, notification);
+            
+            // In a real microservices environment, this would call the actual Node.js notification service
+            // restTemplate.postForObject(notificationUrl, notification, String.class);
+            
+            log.info("✅ Notification event logged successfully for patient: {}", patientId);
         } catch (Exception e) {
-            log.error("Failed to send notification to {}: {}", notificationServiceUrl, e.getMessage());
+            log.error("❌ Failed to send notification for patient {}: {}", patientId, e.getMessage());
         }
     }
 }

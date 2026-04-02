@@ -21,19 +21,25 @@ const NOTIFICATION_SERVICE = process.env.NOTIFICATION_SERVICE_URL || 'http://not
 // 1. Auth Service Proxy
 app.use('/api/auth', createProxyMiddleware({
     target: AUTH_SERVICE,
-    changeOrigin: true
+    changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000
 }));
 
 // 2. Doctor Service Proxy
 app.use('/api/doctors', createProxyMiddleware({
     target: DOCTOR_SERVICE,
-    changeOrigin: true
+    changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000
 }));
 
 // 3. Patient Service Proxy
 app.use('/api/patients', createProxyMiddleware({
     target: PATIENT_SERVICE,
-    changeOrigin: true
+    changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000
 }));
 
 // 4. Ward Management Service Proxies (Excluding /api/patients)
@@ -41,14 +47,18 @@ const wardRoutes = ['/api/wards', '/api/beds', '/api/staff', '/api/schedules', '
 wardRoutes.forEach(route => {
     app.use(route, createProxyMiddleware({
         target: WARD_SERVICE,
-        changeOrigin: true
+        changeOrigin: true,
+        timeout: 30000,
+        proxyTimeout: 30000
     }));
 });
 
 // 5. Notification Service Proxy
 app.use('/api/notifications', createProxyMiddleware({
     target: NOTIFICATION_SERVICE,
-    changeOrigin: true
+    changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000
 }));
 
 // Health Check

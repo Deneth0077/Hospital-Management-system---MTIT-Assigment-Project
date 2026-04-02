@@ -42,7 +42,7 @@ export const wardService = {
     createBed: (data) => wardApi.post('/beds', data),
     updateBed: (id, data) => wardApi.put(`/beds/${id}`, data),
 
-    // Patients (Using /admissions to match Spring Boot controller)
+    // Admissions (Ward-specific Patients)
     getAllPatients: () => wardApi.get('/admissions'),
     admitPatient: (data) => wardApi.post('/admissions/admit', data),
     getPatientById: (id) => wardApi.get(`/admissions/${id}`),
