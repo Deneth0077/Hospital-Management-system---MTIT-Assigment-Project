@@ -1,12 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, FlaskConical, Plus, Filter, MoreVertical, FileText, Download, CheckCircle2, Loader2, AlertTriangle, Eye, Trash2 } from 'lucide-react';
+import { Search, FlaskConical, Plus, Filter, MoreVertical, FileText, Download, CheckCircle2, Loader2, AlertTriangle, Eye, Trash2, X } from 'lucide-react';
 import { labService } from '../services/api';
 
 const LabModule = () => {
     const [labTests, setLabTests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [newTest, setNewTest] = useState({
+        patient: '',
+        test: '',
+        type: '',
+        urgency: 'Routine'
+    });
 
     useEffect(() => {
         fetchTests();
@@ -46,43 +54,30 @@ const LabModule = () => {
         }
     };
 
-    const handleRequestTest = async () => {
-        const patient = prompt("Enter Patient Name:", "Jane Doe");
-        const test = prompt("Enter Test Name:", "Blood Test");
-        const type = prompt("Enter Category:", "Hematology");
-        if (!patient || !test || !type) return;
-
+    const handleRequestTest = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
         try {
             await labService.createTest({
-                id: `T-${Math.floor(Math.random() * 1000)}`,
-                patient,
-                test,
-                type,
-                urgency: 'Routine',
+                ...newTest,
+                id: `T-${Math.floor(100 + Math.random() * 900)}`,
                 status: 'Pending'
             });
+            setIsModalOpen(false);
+            setNewTest({ patient: '', test: '', type: '', urgency: 'Routine' });
             fetchTests();
         } catch (err) {
             console.error("Error creating test:", err);
             alert("Failed to create test");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    if (loading) return (
+    if (loading && labTests.length === 0) return (
         <div className="flex flex-col items-center justify-center h-64 text-blue-600">
             <Loader2 className="animate-spin mb-4" size={48} />
             <p className="font-bold">Loading Lab Data...</p>
-        </div>
-    );
-
-    if (error) return (
-        <div className="p-8 bg-red-50 border border-red-200 rounded-2xl text-red-600 flex items-center gap-4">
-            <AlertTriangle size={32} />
-            <div>
-                <h3 className="font-bold text-lg">Error</h3>
-                <p>{error}</p>
-                <button onClick={fetchTests} className="mt-2 bg-red-600 text-white px-4 py-1.5 rounded-lg font-bold text-sm">Retry</button>
-            </div>
         </div>
     );
 
@@ -100,7 +95,7 @@ const LabModule = () => {
                     </div>
                 </div>
                 <button 
-                    onClick={handleRequestTest}
+                    onClick={() => setIsModalOpen(true)}
                     className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100"
                 >
                     <Plus size={18} /> Request New Test
@@ -122,6 +117,17 @@ const LabModule = () => {
                     </div>
                 ))}
             </div>
+
+            {error && (
+                <div className="p-8 bg-red-50 border border-red-200 rounded-2xl text-red-600 flex items-center gap-4">
+                    <AlertTriangle size={32} />
+                    <div>
+                        <h3 className="font-bold text-lg">Error</h3>
+                        <p>{error}</p>
+                        <button onClick={fetchTests} className="mt-2 bg-red-600 text-white px-4 py-1.5 rounded-lg font-bold text-sm">Retry</button>
+                    </div>
+                </div>
+            )}
 
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
                 <table className="w-full text-left text-sm">
@@ -191,6 +197,89 @@ const LabModule = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Add Test Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-blue-600 text-white">
+                            <h3 className="text-xl font-bold">Request New Lab Test</h3>
+                            <button onClick={() => setIsModalOpen(false)} className="hover:rotate-90 transition-transform">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleRequestTest} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Patient Name</label>
+                                <input 
+                                    required
+                                    type="text" 
+                                    value={newTest.patient}
+                                    onChange={(e) => setNewTest({...newTest, patient: e.target.value})}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder="Enter patient's full name"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Test Name</label>
+                                <input 
+                                    required
+                                    type="text" 
+                                    value={newTest.test}
+                                    onChange={(e) => setNewTest({...newTest, test: e.target.value})}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder="e.g., Complete Blood Count"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Category</label>
+                                    <select 
+                                        value={newTest.type}
+                                        onChange={(e) => setNewTest({...newTest, type: e.target.value})}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        required
+                                    >
+                                        <option value="">Select Category</option>
+                                        <option value="Hematology">Hematology</option>
+                                        <option value="Biochemistry">Biochemistry</option>
+                                        <option value="Radiology">Radiology</option>
+                                        <option value="Microbiology">Microbiology</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Urgency</label>
+                                    <select 
+                                        value={newTest.urgency}
+                                        onChange={(e) => setNewTest({...newTest, urgency: e.target.value})}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    >
+                                        <option value="Routine">Routine</option>
+                                        <option value="Stat">Stat (Urgent)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="pt-4 flex gap-3">
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="flex-1 px-6 py-3 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
+                                >
+                                    {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                                    {isSubmitting ? 'Saving...' : 'Submit Request'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
