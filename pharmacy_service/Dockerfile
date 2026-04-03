@@ -1,21 +1,21 @@
-# Use Node.js base image
 FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
 # Configure npm with increased timeout
 RUN npm config set fetch-timeout 60000 && npm config set fetch-retry-mintimeout 20000 && npm config set fetch-retry-maxtimeout 120000
 
-# Copy package.json and install dependencies
+# Copy package files
 COPY package*.json ./
-RUN npm install || npm install
 
-# Copy application source code
+# Install dependencies with retry
+RUN npm install --legacy-peer-deps || npm install --legacy-peer-deps
+
+# Copy application code
 COPY . .
 
-# Expose the application port
-EXPOSE 5003
+# Expose port
+EXPOSE 5004
 
-# Command to run the application
+# Start the service
 CMD ["npm", "start"]
