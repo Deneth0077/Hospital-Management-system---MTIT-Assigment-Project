@@ -132,5 +132,18 @@ app.listen(PORT, () => {
     console.log(`- Notification Service -> ${NOTIFICATION_SERVICE}`);
     console.log(`- Appointment Service -> ${APPOINTMENT_SERVICE}`);
     console.log(`- Lab Service -> ${LAB_SERVICE}`);
-    console.log(`- Pharmacy Service -> ${PHARMACY_SERVICE}`);
+    console.log(`- Pharmacy Service    -> ${PHARMACY_SERVICE}`);
+    
+    console.log('\n' + '='.repeat(60));
+    console.log('       🏥 MICROSERVICE SWAGGER DOCUMENTATION 🏥');
+    console.log('='.repeat(60));
+    console.log(`- API Gateway (Main)  -> http://localhost:${PORT}/swagger`);
+    console.log(`- Doctor Service      -> http://localhost:8081/swagger-ui.html`);
+    console.log(`- Ward Service        -> http://localhost:8080/api-docs`);
+    console.log(`- Lab Service         -> http://localhost:5003/api/lab/api-docs`);
+    console.log(`- Pharmacy Service    -> http://localhost:5004/api/pharmacy/api-docs`);
+    console.log(`- Appointment Service -> http://localhost:5002/api/appointments/api-docs`);
+    console.log(`- Patient Service     -> http://localhost:8082/api/patients/api-docs`);
+    console.log(`- Auth Service        -> http://localhost:5000/api/auth/api-docs (if enabled)`);
+    console.log('='.repeat(60) + '\n');
 });

@@ -19,6 +19,16 @@ exports.createMedicine = async (req, res) => {
 };
 
 // Get all medicines with optional filtering and search
+/**
+ * @swagger
+ * /api/pharmacy:
+ *   get:
+ *     summary: Get all medicines
+ *     description: Retrieve all medicine records from the inventory with optional filters.
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 exports.getAllMedicines = async (req, res) => {
   try {
     const { 

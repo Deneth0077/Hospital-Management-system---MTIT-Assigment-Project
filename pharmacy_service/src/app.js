@@ -4,8 +4,30 @@ const morgan = require("morgan");
 require("dotenv").config();
 
 const pharmacyRoutes = require("./routes/pharmacyRoutes");
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Pharmacy Management API',
+            version: '1.0.0',
+            description: 'API documentation for Pharmacy Management service',
+        },
+        servers: [{ url: 'http://localhost:5004' }, { url: '/api/pharmacy' }]
+    },
+    apis: ['./src/routes/*.js', './src/controllers/*.js']
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api/pharmacy/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.get('/api/pharmacy/api-docs-json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerDocs);
+});
 
 // Middleware
 app.use(cors());
