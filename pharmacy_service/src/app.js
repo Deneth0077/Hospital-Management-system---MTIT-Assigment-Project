@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
-app.use("/api/medicines", pharmacyRoutes);
+app.use("/api/pharmacy", pharmacyRoutes);
 
 // Error Handling Middleware
 app.use((req, res, next) => {
