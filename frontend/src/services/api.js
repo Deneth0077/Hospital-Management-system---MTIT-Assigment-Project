@@ -13,6 +13,15 @@ export const doctorApi = axios.create({
     baseURL: GATEWAY_URL, // Generic for now, gateway will route based on sub-path
 });
 
+export const doctorService = {
+    getAllDoctors: (params) => doctorApi.get('/doctors', { params }),
+    getDoctorById: (id) => doctorApi.get(`/doctors/${id}`),
+    createDoctor: (data) => doctorApi.post('/doctors', data),
+    updateDoctor: (id, data) => doctorApi.put(`/doctors/${id}`, data),
+    deleteDoctor: (id) => doctorApi.delete(`/doctors/${id}`),
+    getStats: () => doctorApi.get('/doctors/stats'),
+};
+
 // 3. Patient Service
 export const patientApi = axios.create({
     baseURL: GATEWAY_URL,
