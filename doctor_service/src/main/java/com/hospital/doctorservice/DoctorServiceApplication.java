@@ -1,0 +1,18 @@
+package com.hospital.doctorservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DoctorServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DoctorServiceApplication.class, args);
+        System.out.println("\n========================================");
+        System.out.println("  Doctor Service is running on :8081");
+        System.out.println("  Swagger UI → http://localhost:8081/swagger-ui.html");
+        System.out.println("  API Docs   → http://localhost:8081/api-docs");
+        System.out.println("  H2 Console → http://localhost:8081/h2-console");
+        System.out.println("========================================\n");
+    }
+}

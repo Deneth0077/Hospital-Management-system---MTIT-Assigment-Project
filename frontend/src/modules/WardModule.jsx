@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
     Search, Bed, Users, Plus, TrendingUp, AlertCircle, 
     Home, CheckCircle, X, Activity, UserPlus, Info, 
-    Stethoscope, Clock 
+    Stethoscope, Clock, Edit3, Trash2
 } from 'lucide-react';
 import { wardService } from '../services/api';
 
@@ -17,11 +17,13 @@ const WardModule = () => {
 
     // State for modals
     const [showAddWardModal, setShowAddWardModal] = useState(false);
+    const [showEditWardModal, setShowEditWardModal] = useState(false);
     const [showAdmitModal, setShowAdmitModal] = useState(false);
     const [showAddStaffModal, setShowAddStaffModal] = useState(false);
 
     // Form states
     const [newWard, setNewWard] = useState({ name: '', capacity: 1, type: 'General' });
+    const [editingWard, setEditingWard] = useState(null);
     const [admissionData, setAdmissionData] = useState({ 
         name: '', 
         disease: '', 
@@ -145,7 +147,6 @@ const WardModule = () => {
     const handleCreateWard = async (e) => {
         e.preventDefault();
         try {
-            // Ensure capacity is a valid positive number
             const capacity = parseInt(newWard.capacity);
             if (isNaN(capacity) || capacity <= 0) {
                 alert("Please enter a valid positive capacity.");
@@ -158,15 +159,44 @@ const WardModule = () => {
             fetchWards();
         } catch (error) {
             console.error('Error creating ward:', error);
-            // More detailed error alert
-            alert(`Error: ${error.response?.data?.error || 'Failed to create ward. See console for details.'}`);
+            alert(`Error: ${error.response?.data?.error || 'Failed to create ward.'}`);
+        }
+    };
+
+    const handleUpdateWard = async (e) => {
+        e.preventDefault();
+        if (!editingWard) return;
+        try {
+            await wardService.updateWard(editingWard.id, editingWard);
+            setShowEditWardModal(false);
+            setEditingWard(null);
+            fetchWards();
+        } catch (error) {
+            console.error('Error updating ward:', error);
+            alert(`Error: ${error.response?.data?.error || 'Failed to update ward.'}`);
+        }
+    };
+
+    const handleDeleteWard = async (wardId, wardName) => {
+        if (!window.confirm(`Are you sure you want to delete "${wardName}"? All data for this ward will be removed.`)) return;
+        try {
+            await wardService.deleteWard(wardId);
+            if (selectedWard?.id === wardId) setSelectedWard(null);
+            fetchWards();
+        } catch (error) {
+            console.error('Error deleting ward:', error);
+            alert(`Error: ${error.response?.data?.error || 'Failed to delete ward.'}`);
         }
     };
 
     const handleAdmitPatient = async (e) => {
         e.preventDefault();
         try {
-            await wardService.admitPatient(admissionData);
+            const dataToSubmit = {
+                ...admissionData,
+                admissionDate: admissionData.admissionDate + ":00"
+            };
+            await wardService.admitPatient(dataToSubmit);
             setShowAdmitModal(false);
             setAdmissionData({ 
                 name: '', 
@@ -263,15 +293,38 @@ const WardModule = () => {
                         <div 
                             key={ward.id} 
                             onClick={() => setSelectedWard(ward)}
-                            className={`p-6 rounded-2xl border-l-8 shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${selectedWard?.id === ward.id ? getWardColor(ward.type) + ' ring-2 ring-blue-100' : 'bg-white border-gray-200 text-gray-700'}`}
+                            className={`group relative p-6 rounded-2xl border-l-8 shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${selectedWard?.id === ward.id ? getWardColor(ward.type) + ' ring-2 ring-blue-100' : 'bg-white border-gray-200 text-gray-700'}`}
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 className="font-bold text-lg">{ward.name}</h3>
                                     <span className="text-[10px] font-bold uppercase opacity-60 tracking-wider font-mono">{ward.type}</span>
                                 </div>
-                                <div className={`${occupancyRate > 0.8 ? 'text-orange-500' : 'text-emerald-500'}`}>
-                                    {occupancyRate > 0.8 ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
+                                <div className="flex flex-col items-end gap-2">
+                                    <div className={`${occupancyRate > 0.8 ? 'text-orange-500' : 'text-emerald-500'}`}>
+                                        {occupancyRate > 0.8 ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
+                                    </div>
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingWard(ward);
+                                                setShowEditWardModal(true);
+                                            }}
+                                            className="p-1.5 hover:bg-white rounded-lg text-gray-500 hover:text-blue-500 transition-colors"
+                                        >
+                                            <Edit3 size={14} />
+                                        </button>
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteWard(ward.id, ward.name);
+                                            }}
+                                            className="p-1.5 hover:bg-white rounded-lg text-gray-500 hover:text-red-500 transition-colors"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex justify-between items-end">
@@ -511,6 +564,81 @@ const WardModule = () => {
                             </div>
                             <button type="submit" className="w-full py-4.5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-3 active:scale-95 group">
                                 <Plus size={18} /> Initialize Ward
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal: Edit Ward */}
+            {showEditWardModal && editingWard && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in transition-all">
+                    <div className="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="p-6 bg-gradient-to-r from-blue-700 to-indigo-800 text-white flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/20 rounded-2xl shadow-inner backdrop-blur-md">
+                                    <Edit3 size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-xl tracking-tight">Edit Ward: {editingWard.name}</h3>
+                                    <p className="text-[10px] text-blue-100 opacity-90 uppercase tracking-[0.2em] font-black">Facilities Update</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowEditWardModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleUpdateWard} className="p-8 space-y-8">
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                        <Home size={12} /> Ward Name
+                                    </label>
+                                    <div className="relative group">
+                                        <Home className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                                        <input 
+                                            required
+                                            type="text" 
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 pl-12 pr-5 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all shadow-sm font-bold"
+                                            value={editingWard.name}
+                                            onChange={(e) => setEditingWard({...editingWard, name: e.target.value})}
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                            <Activity size={12} /> Ward Type
+                                        </label>
+                                        <select 
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-blue-500 outline-none appearance-none font-bold text-gray-700 shadow-sm"
+                                            value={editingWard.type}
+                                            onChange={(e) => setEditingWard({...editingWard, type: e.target.value})}
+                                        >
+                                            <option value="General">General</option>
+                                            <option value="ICU">ICU</option>
+                                            <option value="Maternity">Maternity</option>
+                                            <option value="Pediatric">Pediatric</option>
+                                            <option value="Emergency">Emergency</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em] block mb-3 px-1 flex items-center gap-2">
+                                            <TrendingUp size={12} /> Total Capacity
+                                        </label>
+                                        <input 
+                                            required
+                                            type="number" 
+                                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 px-5 text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all shadow-sm"
+                                            value={editingWard.capacity}
+                                            onChange={(e) => setEditingWard({...editingWard, capacity: parseInt(e.target.value)})}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" className="w-full py-4.5 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-blue-700 transition-all shadow-xl shadow-blue-100 flex items-center justify-center gap-3 active:scale-95 group">
+                                <CheckCircle size={18} /> Update Ward Changes
                             </button>
                         </form>
                     </div>
@@ -808,7 +936,18 @@ const WardModule = () => {
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-6">
+                            <div className="grid grid-cols-2 gap-4 pb-4 border-b border-gray-50">
+                                <div className="p-3 bg-gray-50 rounded-2xl flex flex-col items-center">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Age / Gender</span>
+                                    <span className="text-xs font-bold text-gray-700">{selectedBedPatient.age || 'N/A'} / {selectedBedPatient.gender || 'N/A'}</span>
+                                </div>
+                                <div className="p-3 bg-gray-50 rounded-2xl flex flex-col items-center">
+                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Blood Group</span>
+                                    <span className="text-xs font-bold text-red-500 font-mono">{selectedBedPatient.bloodGroup || 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4">
                                 <div className="flex items-center gap-4 group">
                                     <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
                                         <Activity size={20} />
@@ -820,12 +959,23 @@ const WardModule = () => {
                                 </div>
 
                                 <div className="flex items-center gap-4 group">
-                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors transition-colors">
                                         <Stethoscope size={20} />
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Attending Physician</span>
                                         <span className="text-sm font-bold text-gray-700">{selectedBedPatient.doctorName}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 group">
+                                    <div className="p-3 bg-gray-50 rounded-2xl text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                                        <Users size={20} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Emergency Contact</span>
+                                        <span className="text-sm font-bold text-gray-700">{selectedBedPatient.emergencyContactName || 'None'}</span>
+                                        <span className="text-[10px] text-gray-400">{selectedBedPatient.emergencyContactPhone || ''}</span>
                                     </div>
                                 </div>
 

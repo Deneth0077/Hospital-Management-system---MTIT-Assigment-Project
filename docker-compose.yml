@@ -5,18 +5,11 @@ services:
     build:
       context: ./frontend
       args:
-        - VITE_AUTH_API_URL=http://localhost:5000/api
-        - VITE_WARD_API_URL=http://localhost:8080/api
-        - VITE_DOCTOR_API_URL=http://localhost:8081/api
-        - VITE_PATIENT_API_URL=http://localhost:8082/api
-        - VITE_APPOINTMENT_API_URL=http://localhost:8083/api
-        - VITE_PHARMACY_API_URL=http://localhost:8084/api
-        - VITE_LAB_API_URL=http://localhost:8085/api
+        - VITE_API_GATEWAY_URL=http://localhost:8000/api
     ports:
       - "5173:80"
     depends_on:
-      - auth-backend
-      - ward-service
+      - api-gateway
 
   # 2. Login Auth (Node.js)
   auth-backend:
@@ -34,17 +27,99 @@ services:
     restart: always
     environment:
       - 'SPRING_PROFILES_ACTIVE=default'
+      - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001/api/notifications/notify'
 
-  # 4. Doctor Service (Member 2)
-  # doctor-service:
-  #   build: ./doctor_service
+  # 4. Notification Service (Node.js)
+  notification-service:
+    build:
+      context: "./notification-service"
+    ports:
+      - "5001:5001"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Notification_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5001'
+    restart: always
+
+  # 5. API Gateway (Node.js)
+  api-gateway:
+    build:
+      context: "./api-gateway"
+    ports:
+      - "8000:8000"
+    environment:
+      - 'AUTH_SERVICE_URL=http://auth-backend:5000'
+      - 'WARD_SERVICE_URL=http://ward-service:8080'
+      - 'DOCTOR_SERVICE_URL=http://doctor-service:8081'
+      - 'PATIENT_SERVICE_URL=http://patient-service:8082'
+      - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001'
+      - 'APPOINTMENT_SERVICE_URL=http://appointment-service:5002'
+      - 'LAB_SERVICE_URL=http://lab-service:5003'
+      - 'PHARMACY_SERVICE_URL=http://pharmacy-service:5004'
+    restart: always
+    depends_on:
+      - auth-backend
+      - ward-service
+      - patient-service
+      - notification-service
+      - appointment-service
+      - lab-service
+      - pharmacy-service
+
+  # 6. Appointment Service (Node.js)
+  appointment-service:
+    container_name: appointment-service
+    build:
+      context: "./appoiment-management"
+    ports:
+      - "5002:5002"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Appointment_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5002'
+    restart: always
+
+  # 8. Lab Service (Node.js)
+  lab-service:
+    container_name: lab-service
+    build:
+      context: "./lab-management"
+    ports:
+      - "5003:5003"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Lab_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5003'
+    restart: always
+
+  # 6. Doctor Service (Uncommented as it is restored)
+  doctor-service:
+    build: 
+      context: ./doctor_service
+    ports:
+      - "8081:8081"
+
+  patient-service:
+    build: 
+      context: ./patient-service
+    ports:
+      - "8082:8082"
+    environment:
+      - 'PORT=8082'
+      - 'MONGO_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Patient_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+    depends_on:
+      - notification-service
+
+  # MongoDB for Patient Service (Commented out if not needed)
+  # mongodb:
+  #   image: mongo:latest
   #   ports:
-  #     - "8081:8081"
-
-  # 5. Patient Service (Member 3)
-  # patient-service:
-  #   build: ./patient_service
-  #   ports:
-  #     - "8082:8082"
-
-  # ... and so on for others
+  #     - "27017:27017"
+  # 9. Pharmacy Service (Node.js)
+  pharmacy-service:
+    container_name: pharmacy-service
+    build:
+      context: "./pharmacy_service"
+    ports:
+      - "5004:5004"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Lab_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5004'
+    restart: always

@@ -24,10 +24,24 @@ import WardModule from '../modules/WardModule';
 import PharmacyModule from '../modules/PharmacyModule';
 import LabModule from '../modules/LabModule';
 
+import NotificationService from '../services/NotificationService';
+import { useEffect } from 'react';
+
 const DashboardLayout = ({ onLogout }) => {
     const [activeModule, setActiveModule] = useState('dashboard');
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
 
-    // Main Dashboard Summary Component
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            const data = await NotificationService.getSystemNotifications();
+            setNotifications(data);
+        };
+        fetchNotifications();
+        // Poll for notifications every 30 seconds
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, []);
     const MainDashboardSummary = () => {
         const summaries = [
             { 
@@ -157,9 +171,56 @@ const DashboardLayout = ({ onLogout }) => {
                         </div>
                     </div>
                     <div className="flex items-center gap-6">
-                        <div className="relative cursor-pointer text-gray-500 hover:text-gray-800 transition-colors">
-                            <Bell size={22} />
-                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+                        <div className="relative">
+                            <div 
+                                onClick={() => setShowNotifications(!showNotifications)}
+                                className="cursor-pointer text-gray-500 hover:text-gray-800 transition-colors"
+                            >
+                                <Bell size={22} />
+                                {notifications.length > 0 && (
+                                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+                                )}
+                            </div>
+
+                            {showNotifications && (
+                                <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                                    <div className="p-4 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                                        <h4 className="font-bold text-gray-800">Notifications</h4>
+                                        <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold uppercase">Recent</span>
+                                    </div>
+                                    <div className="max-h-96 overflow-y-auto">
+                                        {notifications.length === 0 ? (
+                                            <div className="p-8 text-center text-gray-400">
+                                                <Bell size={32} className="mx-auto mb-2 opacity-20" />
+                                                <p className="text-sm">No new notifications</p>
+                                            </div>
+                                        ) : (
+                                            notifications.map((notif, index) => (
+                                                <div key={index} className="p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer">
+                                                    <div className="flex gap-3">
+                                                        <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                                                            notif.type === 'ADMISSION' ? 'bg-green-500' : 
+                                                            notif.type === 'DISCHARGE' ? 'bg-orange-500' : 'bg-blue-500'
+                                                        }`}></div>
+                                                        <div className="flex-1">
+                                                            <div className="flex justify-between items-start mb-0.5">
+                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{notif.type}</span>
+                                                                <span className="text-[10px] text-gray-400 font-medium">{new Date(notif.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                                            </div>
+                                                            <p className="text-sm text-gray-700 font-medium leading-snug">{notif.message}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                    {notifications.length > 0 && (
+                                        <div className="p-3 text-center border-t border-gray-50">
+                                            <button className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">Clear all notifications</button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <div className="flex items-center gap-3 bg-white pr-4 py-1.5 rounded-full shadow-sm border border-gray-100">
                              <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">SA</div>

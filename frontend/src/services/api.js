@@ -1,29 +1,40 @@
 
 import axios from 'axios';
 
+const GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8000/api';
+
 // 1. Auth Service (Node backend)
 const api = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_API_URL || 'http://localhost:5000/api',
+    baseURL: GATEWAY_URL + '/auth',
 });
 
 // 2. Doctor Service
 export const doctorApi = axios.create({
-    baseURL: import.meta.env.VITE_DOCTOR_API_URL || 'http://localhost:8081/api',
+    baseURL: GATEWAY_URL, // Generic for now, gateway will route based on sub-path
 });
+
+export const doctorService = {
+    getAllDoctors: (params) => doctorApi.get('/doctors', { params }),
+    getDoctorById: (id) => doctorApi.get(`/doctors/${id}`),
+    createDoctor: (data) => doctorApi.post('/doctors', data),
+    updateDoctor: (id, data) => doctorApi.put(`/doctors/${id}`, data),
+    deleteDoctor: (id) => doctorApi.delete(`/doctors/${id}`),
+    getStats: () => doctorApi.get('/doctors/stats'),
+};
 
 // 3. Patient Service
 export const patientApi = axios.create({
-    baseURL: import.meta.env.VITE_PATIENT_API_URL || 'http://localhost:8082/api',
+    baseURL: GATEWAY_URL,
 });
 
 // 4. Appointment Service
 export const appointmentApi = axios.create({
-    baseURL: import.meta.env.VITE_APPOINTMENT_API_URL || 'http://localhost:8083/api',
+    baseURL: GATEWAY_URL,
 });
 
 // 5. Ward Service
 export const wardApi = axios.create({
-    baseURL: import.meta.env.VITE_WARD_API_URL || 'http://localhost:8080/api',
+    baseURL: GATEWAY_URL,
 });
 
 export const wardService = {
@@ -40,13 +51,13 @@ export const wardService = {
     createBed: (data) => wardApi.post('/beds', data),
     updateBed: (id, data) => wardApi.put(`/beds/${id}`, data),
 
-    // Patients
-    getAllPatients: () => wardApi.get('/patients'),
-    admitPatient: (data) => wardApi.post('/patients/admit', data),
-    getPatientById: (id) => wardApi.get(`/patients/${id}`),
-    updatePatient: (id, data) => wardApi.put(`/patients/${id}`, data),
-    deletePatient: (id) => wardApi.delete(`/patients/${id}`),
-    dischargePatient: (id) => wardApi.post(`/patients/${id}/discharge`),
+    // Admissions (Ward-specific Patients)
+    getAllPatients: () => wardApi.get('/admissions'),
+    admitPatient: (data) => wardApi.post('/admissions/admit', data),
+    getPatientById: (id) => wardApi.get(`/admissions/${id}`),
+    updatePatient: (id, data) => wardApi.put(`/admissions/${id}`, data),
+    deletePatient: (id) => wardApi.delete(`/admissions/${id}`),
+    dischargePatient: (id) => wardApi.post(`/admissions/${id}/discharge`),
 
     // Staff
     getAllStaff: () => wardApi.get('/staff'),
@@ -58,15 +69,43 @@ export const wardService = {
     getAllSchedules: () => wardApi.get('/schedules'),
 };
 
+export const appointmentService = {
+    getAllAppointments: (params) => appointmentApi.get('/appointments', { params }),
+    getAppointmentById: (id) => appointmentApi.get(`/appointments/${id}`),
+    createAppointment: (data) => appointmentApi.post('/appointments', data),
+    updateAppointment: (id, data) => appointmentApi.put(`/appointments/${id}`, data),
+    deleteAppointment: (id) => appointmentApi.delete(`/appointments/${id}`),
+    getStats: () => appointmentApi.get('/appointments/stats'),
+};
+
 // 6. Pharmacy Service
 export const pharmacyApi = axios.create({
-    baseURL: import.meta.env.VITE_PHARMACY_API_URL || 'http://localhost:8084/api',
+    baseURL: GATEWAY_URL,
 });
+
+export const pharmacyService = {
+    getAllMedicines: () => pharmacyApi.get('/pharmacy'),
+    getMedicineById: (id) => pharmacyApi.get(`/pharmacy/${id}`),
+    createMedicine: (data) => pharmacyApi.post('/pharmacy', data),
+    updateMedicine: (id, data) => pharmacyApi.put(`/pharmacy/${id}`, data),
+    deleteMedicine: (id) => pharmacyApi.delete(`/pharmacy/${id}`),
+    getStats: () => pharmacyApi.get('/pharmacy/stats'),
+    getLowStock: () => pharmacyApi.get('/pharmacy/low-stock'),
+    getOutOfStock: () => pharmacyApi.get('/pharmacy/out-of-stock'),
+    updateStock: (id, stock) => pharmacyApi.put(`/pharmacy/${id}/stock`, { stock }),
+};
 
 // 7. Lab Service
 export const labApi = axios.create({
-    baseURL: import.meta.env.VITE_LAB_API_URL || 'http://localhost:8085/api',
+    baseURL: GATEWAY_URL,
 });
+
+export const labService = {
+    getAllTests: () => labApi.get('/lab/tests'),
+    createTest: (data) => labApi.post('/lab/tests', data),
+    updateTestStatus: (id, status) => labApi.patch(`/lab/tests/${id}`, { status }),
+    deleteTest: (id) => labApi.delete(`/lab/tests/${id}`),
+};
 
 // Admin Login handling
 export const login = async (email, password) => {
