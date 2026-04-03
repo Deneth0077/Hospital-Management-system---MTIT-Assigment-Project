@@ -2,8 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const patientRoutes = require("./routes/patientRoutes");
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
+const setupSwagger = require("./config/swagger");
 
 const app = express();
+setupSwagger(app);
 
 app.use(cors());
 app.use(express.json());

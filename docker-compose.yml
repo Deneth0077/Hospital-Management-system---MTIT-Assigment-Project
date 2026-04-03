@@ -15,12 +15,15 @@ services:
   auth-backend:
     build:
       context: "./node backend"
-    # Ports: 5000:5000 (hidden behind gateway or kept for debugging)
+    ports:
+      - "5000:5000"
 
   # 3. Ward Service (Spring Boot + MongoDB Atlas)
   ward-service:
     build:
       context: "./Ward-Management/springboot backed"
+    ports:
+      - "8080:8080"
     restart: always
     environment:
       - 'SPRING_PROFILES_ACTIVE=default'
@@ -30,6 +33,8 @@ services:
   notification-service:
     build:
       context: "./notification-service"
+    ports:
+      - "5001:5001"
     environment:
       - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Notification_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
       - 'PORT=5001'
@@ -53,8 +58,7 @@ services:
     depends_on:
       - auth-backend
       - ward-service
-      # - doctor-service
-      # - patient-service
+      - patient-service
       - notification-service
       - appointment-service
       - lab-service
@@ -83,24 +87,23 @@ services:
       - 'PORT=5003'
     restart: always
 
-  # 6. Doctor Service (No Dockerfile found in context)
-  # doctor-service:
-  #   build: 
-  #     context: ./doctor_service
-  #   ports:
-  #     - "8081:8081"
+  # 6. Doctor Service (Uncommented as it is restored)
+  doctor-service:
+    build: 
+      context: ./doctor_service
+    ports:
+      - "8081:8081"
 
-  # 7. Patient Service (This service is handled by ward-service admissions)
-  # patient-service:
-  #   build: 
-  #     context: ./patient-service
-  #   ports:
-  #     - "8082:8082"
-  #   environment:
-  #     - PORT=8082
-  #     - MONGO_URI=mongodb://mongodb:27017/patientdb
-  #   depends_on:
-  #     - mongodb
+  patient-service:
+    build: 
+      context: ./patient-service
+    ports:
+      - "8082:8082"
+    environment:
+      - 'PORT=8082'
+      - 'MONGO_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Patient_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+    depends_on:
+      - notification-service
 
   # MongoDB for Patient Service (Commented out if not needed)
   # mongodb:

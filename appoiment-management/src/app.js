@@ -4,8 +4,30 @@ const morgan = require("morgan");
 require("dotenv").config();
 
 const appointmentRoutes = require("./routes/appointmentRoutes");
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Appointment Management API',
+            version: '1.0.0',
+            description: 'API documentation for Appointment Management service',
+        },
+        servers: [{ url: 'http://localhost:5002' }, { url: '/api/appointments' }]
+    },
+    apis: ['./src/routes/*.js']
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api/appointments/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.get('/api/appointments/api-docs-json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerDocs);
+});
 
 // Middleware
 app.use(cors());

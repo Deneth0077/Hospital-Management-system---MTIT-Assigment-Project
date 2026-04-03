@@ -3,6 +3,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const morgan = require('morgan');
 const cors = require('cors');
 require('dotenv').config();
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -19,6 +20,22 @@ const PATIENT_SERVICE = process.env.PATIENT_SERVICE_URL || 'http://patient-servi
 const NOTIFICATION_SERVICE = process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service:5001';
 const APPOINTMENT_SERVICE = process.env.APPOINTMENT_SERVICE_URL || 'http://appointment-service:5002';
 const LAB_SERVICE = process.env.LAB_SERVICE_URL || 'http://lab-service:5003';
+
+// 0. Combined Swagger Documentation
+const swaggerOptions = {
+    explorer: true,
+    swaggerOptions: {
+        urls: [
+            { name: "Auth Service", url: "/api/auth/api-docs-json" },
+            { name: "Ward Management", url: "/api-docs" }, // Spring boot default
+            { name: "Patient Service", url: "/api/patients/api-docs-json" },
+            { name: "Appointment Service", url: "/api/appointments/api-docs-json" },
+            { name: "Lab Service", url: "/api/lab/api-docs-json" },
+            { name: "Notification Service", url: "/api/notifications/api-docs-json" }
+        ]
+    }
+};
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(null, swaggerOptions));
 
 // 1. Auth Service Proxy
 app.use('/api/auth', createProxyMiddleware({
@@ -45,7 +62,7 @@ app.use('/api/patients', createProxyMiddleware({
 }));
 
 // 4. Ward Management Service Proxies (Excluding /api/patients)
-const wardRoutes = ['/api/wards', '/api/beds', '/api/staff', '/api/schedules', '/api/admissions'];
+const wardRoutes = ['/api/wards', '/api/beds', '/api/staff', '/api/schedules', '/api/admissions', '/api-docs'];
 wardRoutes.forEach(route => {
     app.use(route, createProxyMiddleware({
         target: WARD_SERVICE,

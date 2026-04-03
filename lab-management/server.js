@@ -3,8 +3,30 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Lab Management API',
+            version: '1.0.0',
+            description: 'API documentation for Lab Management service',
+        },
+        servers: [{ url: 'http://localhost:5003' }, { url: '/api/lab' }]
+    },
+    apis: ['./server.js']
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api/lab/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.get('/api/lab/api-docs-json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerDocs);
+});
 const PORT = process.env.PORT || 5003;
 
 // Middleware
@@ -49,7 +71,15 @@ const seedData = async () => {
 seedData();
 
 // Routes
-// 1. Get all tests
+/**
+ * @swagger
+ * /api/lab/tests:
+ *   get:
+ *     summary: Get all lab tests
+ *     responses:
+ *       200:
+ *         description: List of lab tests
+ */
 app.get('/api/lab/tests', async (req, res) => {
     try {
         const tests = await LabTest.find().sort({ createdAt: -1 });
@@ -59,7 +89,26 @@ app.get('/api/lab/tests', async (req, res) => {
     }
 });
 
-// 2. Add a new test
+/**
+ * @swagger
+ * /api/lab/tests:
+ *   post:
+ *     summary: Add a new lab test
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id: { type: string }
+ *               patient: { type: string }
+ *               test: { type: string }
+ *               type: { type: string }
+ *     responses:
+ *       201:
+ *         description: Test created
+ */
 app.post('/api/lab/tests', async (req, res) => {
     console.log('Request body:', req.body);
     const test = new LabTest(req.body);
@@ -71,7 +120,29 @@ app.post('/api/lab/tests', async (req, res) => {
     }
 });
 
-// 3. Update test status
+/**
+ * @swagger
+ * /api/lab/tests/{id}:
+ *   patch:
+ *     summary: Update test status
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status: { type: string }
+ *     responses:
+ *       200:
+ *         description: Test updated
+ */
 app.patch('/api/lab/tests/:id', async (req, res) => {
     try {
         const updatedTest = await LabTest.findOneAndUpdate(
@@ -85,7 +156,21 @@ app.patch('/api/lab/tests/:id', async (req, res) => {
     }
 });
 
-// 4. Delete a test
+/**
+ * @swagger
+ * /api/lab/tests/{id}:
+ *   delete:
+ *     summary: Delete a lab test
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Test deleted
+ */
 app.delete('/api/lab/tests/:id', async (req, res) => {
     try {
         await LabTest.findOneAndDelete({ id: req.params.id });

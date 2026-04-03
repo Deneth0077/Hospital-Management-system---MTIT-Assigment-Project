@@ -3,8 +3,30 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const morgan = require('morgan');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Notification Service API',
+            version: '1.0.0',
+            description: 'API documentation for Notification Service',
+        },
+        servers: [{ url: 'http://localhost:5001' }, { url: '/api/notifications' }]
+    },
+    apis: ['./index.js']
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api/notifications/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.get('/api/notifications/api-docs-json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerDocs);
+});
 const PORT = process.env.PORT || 5001;
 
 // Middleware
@@ -36,7 +58,26 @@ const notificationSchema = new mongoose.Schema({
 const Notification = mongoose.model('Notification', notificationSchema);
 
 // Routes
-// 1. Send Notification
+/**
+ * @swagger
+ * /notify:
+ *   post:
+ *     summary: Send a notification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type: { type: string }
+ *               recipient: { type: string }
+ *               message: { type: string }
+ *               sender: { type: string }
+ *     responses:
+ *       201:
+ *         description: Notification processed
+ */
 app.post('/api/notifications/notify', async (req, res) => {
     try {
         const { type, recipient, message, sender } = req.body;
@@ -68,7 +109,20 @@ app.post('/api/notifications/notify', async (req, res) => {
     }
 });
 
-// 2. Get Notifications for a recipient
+/**
+ * @swagger
+ * /recipient/{id}:
+ *   get:
+ *     summary: Get notifications for a specific recipient
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: List of notifications
+ */
 app.get('/api/notifications/recipient/:id', async (req, res) => {
     try {
         const notifications = await Notification.find({ recipient: req.params.id }).sort({ createdAt: -1 });
@@ -78,7 +132,15 @@ app.get('/api/notifications/recipient/:id', async (req, res) => {
     }
 });
 
-// 3. Get All Notifications (for admin / dashboard)
+/**
+ * @swagger
+ * /all:
+ *   get:
+ *     summary: Get all recent notifications
+ *     responses:
+ *       200:
+ *         description: List of all notifications
+ */
 app.get('/api/notifications/all', async (req, res) => {
     try {
         const notifications = await Notification.find().sort({ createdAt: -1 }).limit(50);
