@@ -20,6 +20,7 @@ const PATIENT_SERVICE = process.env.PATIENT_SERVICE_URL || 'http://patient-servi
 const NOTIFICATION_SERVICE = process.env.NOTIFICATION_SERVICE_URL || 'http://notification-service:5001';
 const APPOINTMENT_SERVICE = process.env.APPOINTMENT_SERVICE_URL || 'http://appointment-service:5002';
 const LAB_SERVICE = process.env.LAB_SERVICE_URL || 'http://lab-service:5003';
+const PHARMACY_SERVICE = process.env.PHARMACY_SERVICE_URL || 'http://pharmacy-service:5004';
 
 // 0. Combined Swagger Documentation
 const swaggerOptions = {
@@ -31,6 +32,7 @@ const swaggerOptions = {
             { name: "Patient Service", url: "/api/patients/api-docs-json" },
             { name: "Appointment Service", url: "/api/appointments/api-docs-json" },
             { name: "Lab Service", url: "/api/lab/api-docs-json" },
+            { name: "Pharmacy Service", url: "/api/pharmacy/api-docs-json" },
             { name: "Notification Service", url: "/api/notifications/api-docs-json" }
         ]
     }
@@ -96,6 +98,14 @@ app.use('/api/lab', createProxyMiddleware({
     proxyTimeout: 30000
 }));
 
+// 8. Pharmacy Service Proxy
+app.use('/api/pharmacy', createProxyMiddleware({
+    target: PHARMACY_SERVICE,
+    changeOrigin: true,
+    timeout: 30000,
+    proxyTimeout: 30000
+}));
+
 // Health Check
 app.get('/health', (req, res) => {
     res.json({
@@ -107,7 +117,8 @@ app.get('/health', (req, res) => {
             patient: PATIENT_SERVICE,
             notifications: NOTIFICATION_SERVICE,
             appointments: APPOINTMENT_SERVICE,
-            lab: LAB_SERVICE
+            lab: LAB_SERVICE,
+            pharmacy: PHARMACY_SERVICE
         }
     });
 });
@@ -121,4 +132,5 @@ app.listen(PORT, () => {
     console.log(`- Notification Service -> ${NOTIFICATION_SERVICE}`);
     console.log(`- Appointment Service -> ${APPOINTMENT_SERVICE}`);
     console.log(`- Lab Service -> ${LAB_SERVICE}`);
+    console.log(`- Pharmacy Service -> ${PHARMACY_SERVICE}`);
 });

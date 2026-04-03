@@ -80,8 +80,20 @@ export const appointmentService = {
 
 // 6. Pharmacy Service
 export const pharmacyApi = axios.create({
-    baseURL: import.meta.env.VITE_PHARMACY_API_URL || 'http://localhost:8084/api',
+    baseURL: GATEWAY_URL,
 });
+
+export const pharmacyService = {
+    getAllMedicines: () => pharmacyApi.get('/pharmacy'),
+    getMedicineById: (id) => pharmacyApi.get(`/pharmacy/${id}`),
+    createMedicine: (data) => pharmacyApi.post('/pharmacy', data),
+    updateMedicine: (id, data) => pharmacyApi.put(`/pharmacy/${id}`, data),
+    deleteMedicine: (id) => pharmacyApi.delete(`/pharmacy/${id}`),
+    getStats: () => pharmacyApi.get('/pharmacy/stats'),
+    getLowStock: () => pharmacyApi.get('/pharmacy/low-stock'),
+    getOutOfStock: () => pharmacyApi.get('/pharmacy/out-of-stock'),
+    updateStock: (id, stock) => pharmacyApi.put(`/pharmacy/${id}/stock`, { stock }),
+};
 
 // 7. Lab Service
 export const labApi = axios.create({

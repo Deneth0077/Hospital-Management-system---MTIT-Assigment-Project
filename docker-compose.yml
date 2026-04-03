@@ -54,6 +54,7 @@ services:
       - 'NOTIFICATION_SERVICE_URL=http://notification-service:5001'
       - 'APPOINTMENT_SERVICE_URL=http://appointment-service:5002'
       - 'LAB_SERVICE_URL=http://lab-service:5003'
+      - 'PHARMACY_SERVICE_URL=http://pharmacy-service:5004'
     restart: always
     depends_on:
       - auth-backend
@@ -62,6 +63,7 @@ services:
       - notification-service
       - appointment-service
       - lab-service
+      - pharmacy-service
 
   # 6. Appointment Service (Node.js)
   appointment-service:
@@ -110,3 +112,14 @@ services:
   #   image: mongo:latest
   #   ports:
   #     - "27017:27017"
+  # 9. Pharmacy Service (Node.js)
+  pharmacy-service:
+    container_name: pharmacy-service
+    build:
+      context: "./pharmacy_service"
+    ports:
+      - "5004:5004"
+    environment:
+      - 'MONGODB_URI=mongodb+srv://denethc545_db_user:wardpass123@ward-management-microse.rjldbui.mongodb.net/Lab_DB?retryWrites=true&w=majority&appName=Ward-Management-Microservice'
+      - 'PORT=5004'
+    restart: always
